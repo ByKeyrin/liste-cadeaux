@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ma liste de Noël 🎄</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- =====================================================
+         FLOCONS
+         ===================================================== -->
+
+    <div id="snow"></div>
+
+
+    <!-- =====================================================
+         EN-TÊTE
+         ===================================================== -->
+
+    <header>
+
+        <h1>🎄 Ma liste de Noël 🎁</h1>
+
+        <p>
+            Quelques idées de cadeaux qui me feraient plaisir !
+        </p>
+
+    </header>
+
+
+    <!-- =====================================================
+         LISTE DES SOUHAITS
+         ===================================================== -->
+
+    <main id="wishlist">
+        <!-- Les cartes sont générées automatiquement par app.js -->
+    </main>
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer>
+
+        <p>🎅 Joyeux Noël !</p>
+
+    </footer>
+
+
+    <!-- =====================================================
+         POP-UP DE DÉPENDANCE
+         ===================================================== -->
+
+    <div
+        id="dependency-modal"
+        class="modal-overlay"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
+        >
+
+            <button
+                id="modal-close"
+                class="modal-close"
+                type="button"
+                aria-label="Fermer"
+            >
+                ×
+            </button>
+
+
+            <div class="modal-icon">
+                🎁
+            </div>
+
+
+            <h2 id="modal-title">
+                Attention
+            </h2>
+
+
+            <p class="modal-introduction">
+                Cet article n'est utile que si Kévin reçoit
+                d'abord le ou les cadeaux suivants :
+            </p>
+
+
+            <div id="dependency-list">
+                <!-- Les dépendances sont ajoutées par JavaScript -->
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    id="modal-cancel"
+                    class="modal-button modal-button-secondary"
+                    type="button"
+                >
+                    Retour
+                </button>
+
+
+                <button
+                    id="modal-confirm"
+                    class="modal-button modal-button-primary"
+                    type="button"
+                >
+                    Voir le produit
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script src="data/wishes.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>
