@@ -105,5 +105,14 @@ const wishes = [
         price: 115.50,
         url: "https://shop.sveltus.com/fr/p/1451-716-haltere-hexagonale-x1.html#/185-longueur_cm_apres_poids-39/205-largeur_cm_-21/224-hauteur_cm_-18/233-o_poignee_cm_-35/302-poids_kg_1-35_kg",
         requiredWishes: [2]
+    },
+
+    {
+        id: 11,
+        name: "Montre Garmin running Forerunner® 70",
+        image: "images/cadeaux/forerunner70.jpg",
+        price: 115.50,
+        url: "https://www.garmin.com/fr-FR/p/1941179/pn/010-04307-00/",
+        requiredWishes: [2]
     }
 ];
