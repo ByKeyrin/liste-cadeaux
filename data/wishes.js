@@ -111,7 +111,7 @@ const wishes = [
         id: 11,
         name: "Montre Garmin running Forerunner® 70",
         image: "images/cadeaux/forerunner70.jpg",
-        price: 115.50,
+        price: 249.99,
         url: "https://www.garmin.com/fr-FR/p/1941179/pn/010-04307-00/",
         requiredWishes: [2]
     }
