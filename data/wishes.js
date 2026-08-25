@@ -113,6 +113,6 @@ const wishes = [
         image: "images/cadeaux/forerunner70.jpg",
         price: 249.99,
         url: "https://www.garmin.com/fr-FR/p/1941179/pn/010-04307-00/",
-        requiredWishes: [2]
+        requiredWishes: null
     }
 ];
