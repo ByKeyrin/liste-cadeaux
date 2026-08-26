@@ -1,5 +1,5 @@
 const wishes = [
-    {
+   /*{
         id: 1,
         name: "Half Rack",
         image: "images/cadeaux/half-rack.jpg",
@@ -141,5 +141,5 @@ const wishes = [
         price: 64.99,
         url: "https://www.decathlon.fr/p/kettlebell-crosstraining-et-musculation-20-kg-gamme-pro/361165/c1m8930347",
         requiredWishes: null
-    }
+    }*/
 ];
