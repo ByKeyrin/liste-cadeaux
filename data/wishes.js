@@ -141,5 +141,32 @@ const wishes = [
         price: 64.99,
         url: "https://www.decathlon.fr/p/kettlebell-crosstraining-et-musculation-20-kg-gamme-pro/361165/c1m8930347",
         requiredWishes: null
-    }*/
+    },*/
+
+    {
+        id: 15,
+        name: "Tshirt - Eyes On The Horizon - Taille M",
+        image: "images/cadeaux/Tshirt-EyesOnTheHorizon.jpg",
+        price: 37,
+        url: "https://brothersinarms.shop/products/horizon-t-shirt?variant=44585527443724",
+        requiredWishes: null
+    },
+
+    {
+        id: 16,
+        name: "Tshirt - Eyes On The Stars - Taille M",
+        image: "images/cadeaux/Tshirt-EyesOnTheStars.jpg",
+        price: 37,
+        url: "https://brothersinarms.shop/products/stars-t-shirt?variant=45220149068044",
+        requiredWishes: null
+    },
+
+    {
+        id: 17,
+        name: "Tshirt - Hard Times - Taille M",
+        image: "images/cadeaux/Tshirt-HardTimes.jpg",
+        price: 37,
+        url: "https://brothersinarms.shop/products/hard-times-t-shirt?variant=44843591270668",
+        requiredWishes: null
+    }
 ];
