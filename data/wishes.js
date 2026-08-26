@@ -109,15 +109,6 @@ const wishes = [
 
     {
         id: 11,
-        name: "Montre Garmin running Forerunner® 70",
-        image: "images/cadeaux/forerunner70.jpg",
-        price: 249.99,
-        url: "https://www.garmin.com/fr-FR/p/1941179/pn/010-04307-00/",
-        requiredWishes: null
-    },
-
-    {
-        id: 12,
         name: "Kettlebell gamme Pro 12kg x2",
         image: "images/cadeaux/kettlebell-12.jpg",
         price: 38.99,
@@ -126,7 +117,7 @@ const wishes = [
     },
 
     {
-        id: 13,
+        id: 12,
         name: "Kettlebell gamme Pro 16kg x2",
         image: "images/cadeaux/kettlebell-16.jpg",
         price: 49.99,
@@ -135,13 +126,22 @@ const wishes = [
     },
 
     {
-        id: 14,
+        id: 13,
         name: "Kettlebell gamme Pro 20kg x2",
         image: "images/cadeaux/kettlebell-20.jpg",
         price: 64.99,
         url: "https://www.decathlon.fr/p/kettlebell-crosstraining-et-musculation-20-kg-gamme-pro/361165/c1m8930347",
         requiredWishes: null
     },*/
+
+    {
+        id: 14,
+        name: "Montre Garmin running Forerunner® 70",
+        image: "images/cadeaux/forerunner70.jpg",
+        price: 249.99,
+        url: "https://www.garmin.com/fr-FR/p/1941179/pn/010-04307-00/",
+        requiredWishes: null
+    },
 
     {
         id: 15,
