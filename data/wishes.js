@@ -132,7 +132,7 @@ const wishes = [
         price: 64.99,
         url: "https://www.decathlon.fr/p/kettlebell-crosstraining-et-musculation-20-kg-gamme-pro/361165/c1m8930347",
         requiredWishes: null
-    },*/
+    },
 
     {
         id: 14,
@@ -168,5 +168,5 @@ const wishes = [
         price: 37,
         url: "https://brothersinarms.shop/products/hard-times-t-shirt?variant=44843591270668",
         requiredWishes: null
-    }
+    }*/
 ];
