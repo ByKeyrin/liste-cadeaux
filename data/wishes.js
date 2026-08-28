@@ -177,5 +177,23 @@ const wishes = [
         price: 37,
         url: "https://www.zalando.fr/hoka-transport-2-chaussures-de-marche-creamvintage-yellow-h1x42a043-b11.html",
         requiredWishes: null
+    },
+
+    {
+        id: 19,
+        name: "Omnibus - Ultimate Spider-Man - Vol. 2",
+        image: "images/cadeaux/ultimate-spiderman-2.jpg",
+        price: 37,
+        url: "https://www.fnac.com/a16249785/Spider-Man-Tome-02-Ultimate-Spider-Man-T02-Hollywood-Brian-Michael-Bendis",
+        requiredWishes: null
+    },
+
+    {
+        id: 20,
+        name: "Omnibus - Ultimate Spider-Man - Vol. 3",
+        image: "images/cadeaux/ultimate-spiderman-3.jpg",
+        price: 37,
+        url: "https://www.fnac.com/a16828752/Spider-Man-Tome-03-Ultimate-Spider-Man-T03-Ultimatum-Brian-Michael-Bendis",
+        requiredWishes: null
     }*/
 ];
