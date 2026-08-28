@@ -168,5 +168,14 @@ const wishes = [
         price: 37,
         url: "https://brothersinarms.shop/products/hard-times-t-shirt?variant=44843591270668",
         requiredWishes: null
+    },
+
+    {
+        id: 18,
+        name: "Hoka - Transport 2 - T41",
+        image: "images/cadeaux/hoka-transport-2.jpg",
+        price: 37,
+        url: "https://www.zalando.fr/hoka-transport-2-chaussures-de-marche-creamvintage-yellow-h1x42a043-b11.html",
+        requiredWishes: null
     }*/
 ];
