@@ -195,5 +195,14 @@ const wishes = [
         price: 37,
         url: "https://www.fnac.com/a16828752/Spider-Man-Tome-03-Ultimate-Spider-Man-T03-Ultimatum-Brian-Michael-Bendis",
         requiredWishes: null
+    },
+
+    {
+        id: 21,
+        name: "Montre Zeppelin Chronograph",
+        image: "images/cadeaux/montre-zeppelin-chronograph.jpg",
+        price: 379,
+        url: "https://ocarat.com/montre-zeppelin-7680-1-100-jahre-chronograph-15552.html?_gl=1*n6asy7*_up*MQ..*_gs*MQ..&gclid=CjwKCAjwzNTUBhAjEiwA7zcvWhxi5U1VKZ77hva_Xcejl7_jKohDi4dde7DpRoW3Tei-RCuN-hAOCRoCxMQQAvD_BwE",
+        requiredWishes: null
     }*/
 ];
