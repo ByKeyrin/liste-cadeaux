@@ -974,6 +974,100 @@ footer {
 
 
 /* =========================================================
+   BOUTON RETOUR EN HAUT
+   ========================================================= */
+
+#back-to-top {
+    position: fixed;
+
+    right: 24px;
+    bottom: 24px;
+
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: var(--green);
+
+    color: white;
+
+    border: 1px solid
+        rgba(255, 255, 255, 0.2);
+
+    border-radius: 50%;
+
+    font-size: 1.5rem;
+
+    font-weight: 600;
+
+    line-height: 1;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px
+        rgba(25, 18, 12, 0.28);
+
+    backdrop-filter: blur(5px);
+
+    z-index: 100;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    transform:
+        translateY(10px);
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease,
+        transform 0.25s ease,
+        background 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/* Bouton visible */
+
+#back-to-top.visible {
+    opacity: 1;
+
+    visibility: visible;
+
+    transform:
+        translateY(0);
+}
+
+
+/* Survol */
+
+#back-to-top:hover {
+    background:
+        var(--green-dark);
+
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 12px 26px
+        rgba(25, 18, 12, 0.34);
+}
+
+
+/* Clic */
+
+#back-to-top:active {
+    transform:
+        translateY(-1px);
+}
+
+
+/* =========================================================
    RESPONSIVE
    ========================================================= */
 
@@ -1098,4 +1192,19 @@ footer {
         width:
             100%;
     }
+
+   /* ---------------------------------------------
+      Bouton retour en haut
+      --------------------------------------------- */
+   
+   #back-to-top {
+       right: 16px;
+       bottom: 16px;
+   
+       width: 44px;
+       height: 44px;
+   
+       font-size: 1.35rem;
+   }
+
 }
