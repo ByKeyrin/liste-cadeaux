@@ -1,14 +1,17 @@
+```html
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Ma liste de Noël</title>
+    <title>Ma liste de cadeaux</title>
 
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎁</text></svg>">
+    <link
+        rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎁</text></svg>"
+    >
 
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -28,13 +31,54 @@
 
     <header>
 
-        <h1>🎁 Ma liste de Noël 🎁</h1>
+        <h1>🎁 Ma liste de cadeaux 🎁</h1>
 
         <p>
             Quelques idées de cadeaux qui me feraient plaisir !
         </p>
 
     </header>
+
+
+    <!-- =====================================================
+         FILTRES / CATÉGORIES
+         ===================================================== -->
+
+    <nav id="categories" aria-label="Catégories de cadeaux">
+
+        <button
+            class="category-button active"
+            data-category="all"
+            type="button"
+        >
+            Tous
+        </button>
+
+        <button
+            class="category-button"
+            data-category="Mode"
+            type="button"
+        >
+            👕 Mode
+        </button>
+
+        <button
+            class="category-button"
+            data-category="Sport"
+            type="button"
+        >
+            🏋️ Sport
+        </button>
+
+        <button
+            class="category-button"
+            data-category="Loisir"
+            type="button"
+        >
+            🎮 Loisir
+        </button>
+
+    </nav>
 
 
     <!-- =====================================================
@@ -141,3 +185,4 @@
 </body>
 
 </html>
+```
