@@ -701,3 +701,59 @@ document.addEventListener(
         }
     }
 );
+
+// =========================================================
+// BOUTON RETOUR EN HAUT
+// =========================================================
+
+const backToTop =
+    document.getElementById("back-to-top");
+
+
+// ---------------------------------------------------------
+// Affichage du bouton après défilement
+// ---------------------------------------------------------
+
+window.addEventListener(
+    "scroll",
+    function () {
+
+        if (!backToTop) {
+            return;
+        }
+
+
+        if (window.scrollY > 400) {
+
+            backToTop.classList.add(
+                "visible"
+            );
+
+        } else {
+
+            backToTop.classList.remove(
+                "visible"
+            );
+        }
+    }
+);
+
+
+// ---------------------------------------------------------
+// Retour en haut
+// ---------------------------------------------------------
+
+if (backToTop) {
+
+    backToTop.addEventListener(
+        "click",
+        function () {
+
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+
+        }
+    );
+}
