@@ -194,7 +194,7 @@ const wishes = [
     name: "Hoka - Transport 2 - T41",
     category: "Mode",
     image: "images/cadeaux/hoka-transport-2.jpg",
-    price: 37,
+    price: 149.95,
     url: "https://www.zalando.fr/hoka-transport-2-chaussures-de-marche-creamvintage-yellow-h1x42a043-b11.html",
     requiredWishes: null
 },
@@ -204,7 +204,7 @@ const wishes = [
     name: "Omnibus - Ultimate Spider-Man - Vol. 2",
     category: "Loisir",
     image: "images/cadeaux/ultimate-spiderman-2.jpg",
-    price: 37,
+    price: 90,
     url: "https://www.fnac.com/a16249785/Spider-Man-Tome-02-Ultimate-Spider-Man-T02-Hollywood-Brian-Michael-Bendis",
     requiredWishes: null
 },
@@ -214,7 +214,7 @@ const wishes = [
     name: "Omnibus - Ultimate Spider-Man - Vol. 3",
     category: "Loisir",
     image: "images/cadeaux/ultimate-spiderman-3.jpg",
-    price: 37,
+    price: 90,
     url: "https://www.fnac.com/a16828752/Spider-Man-Tome-03-Ultimate-Spider-Man-T03-Ultimatum-Brian-Michael-Bendis",
     requiredWishes: null
 },
