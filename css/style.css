@@ -239,41 +239,18 @@ header p {
    TRI PAR PRIX
    ========================================================= */
 
-#sort-container {
-    display: flex;
-    align-items: center;
-}
-
-#sort-select {
-    padding: 10px 16px;
-    border: 2px solid var(--gold);
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.15);
-    color: #fffaf1;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(4px);
-}
-
-#sort-select:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: var(--gold-light);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-#sort-select:focus {
-    outline: none;
+#sort-button {
+    background: rgba(177, 138, 74, 0.2);
     border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(177, 138, 74, 0.3);
 }
 
-#sort-select option {
-    background: var(--green-dark);
-    color: #fffaf1;
-    padding: 8px;
+#sort-button:hover {
+    background: rgba(177, 138, 74, 0.4);
+}
+
+#sort-button.active {
+    background: var(--gold);
+    color: white;
 }
 
 
