@@ -235,6 +235,45 @@ header p {
     gap: 8px;
 }
 
+/* =========================================================
+   TRI PAR PRIX
+   ========================================================= */
+
+#sort-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 16px;
+}
+
+#sort-container label {
+    color: #fffaf1;
+    font-size: 0.9rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+#sort-select {
+    padding: 8px 12px;
+    border: 2px solid var(--gold);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--text);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#sort-select:hover {
+    border-color: var(--gold-light);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+#sort-select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(177, 138, 74, 0.3);
+}
+
 
 /* =========================================================
    BOUTONS DE CATÉGORIE

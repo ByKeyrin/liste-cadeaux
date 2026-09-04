@@ -4,6 +4,13 @@
 
 console.log("🎄 Application Noël démarrée");
 
+// =========================================================
+// VARIABLE POUR LE TRI
+// =========================================================
+
+let currentSort = "default";
+let currentCategory = "Tous";
+
 
 // =========================================================
 // FLOCONS
@@ -118,18 +125,27 @@ function displayWishes(category = "Tous") {
                 wish => wish.category === category
             );
 
+    // -----------------------------------------------------
+    // Tri par prix
+    // -----------------------------------------------------
+
+    let sortedWishes = [...filteredWishes];
+
+    if (currentSort === "price-asc") {
+        sortedWishes.sort((a, b) => a.price - b.price);
+    } else if (currentSort === "price-desc") {
+        sortedWishes.sort((a, b) => b.price - a.price);
+    }
 
     console.log(
-        `🎁 Affichage de ${filteredWishes.length} souhait(s) - catégorie : ${category}`
+        `🎁 Tri : ${currentSort} | Affichage de ${sortedWishes.length} souhait(s)`
     );
-
 
     // -----------------------------------------------------
     // Génération des cartes
     // -----------------------------------------------------
 
-    filteredWishes.forEach(wish => {
-
+    sortedWishes.forEach(wish => {
         // =================================================
         // CARTE
         // =================================================
