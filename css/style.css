@@ -240,17 +240,21 @@ header p {
    ========================================================= */
 
 #sort-button {
-    background: rgba(177, 138, 74, 0.2);
-    border-color: var(--gold);
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    background: rgba(177, 138, 74, 0.2) !important;
+    border-color: var(--gold) !important;
+    color: var(--green-dark) !important;
 }
 
 #sort-button:hover {
-    background: rgba(177, 138, 74, 0.4);
+    background: rgba(177, 138, 74, 0.4) !important;
 }
 
 #sort-button.active {
-    background: var(--gold);
-    color: white;
+    background: var(--gold) !important;
+    color: white !important;
 }
 
 
