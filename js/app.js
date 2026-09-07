@@ -567,6 +567,29 @@ if (!wishlistContainer) {
 
     createCategoryFilters();
 
+    // -----------------------------------------------------
+    // Écoute du tri par prix (bouton)
+    // -----------------------------------------------------
+
+    const sortButton = document.getElementById("sort-button");
+
+    if (sortButton) {
+        const sortOptions = ["default", "price-asc", "price-desc"];
+        const sortLabels = {
+            "default": "🔽 Trier par",
+            "price-asc": "💰 Prix ↑",
+            "price-desc": "💎 Prix ↓"
+        };
+
+        sortButton.addEventListener("click", function () {
+            const currentIndex = sortOptions.indexOf(currentSort);
+            const nextIndex = (currentIndex + 1) % sortOptions.length;
+            currentSort = sortOptions[nextIndex];
+            sortButton.textContent = sortLabels[currentSort];
+            console.log(`🔽 Tri changé : ${currentSort}`);
+            displayWishes(currentCategory);
+        });
+    }
 
     // -----------------------------------------------------
     // Affichage initial
