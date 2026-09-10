@@ -151,16 +151,6 @@ const wishes = [
 
 {
     id: 16,
-    name: "Montre Garmin running Forerunner® 70",
-    category: "Sport",
-    image: "images/cadeaux/forerunner70.jpg",
-    price: 249.99,
-    url: "https://www.garmin.com/fr-FR/p/1941179/pn/010-04307-00/",
-    requiredWishes: null
-},
-
-{
-    id: 17,
     name: "Tshirt - Eyes On The Horizon - Taille M",
     category: "Mode",
     image: "images/cadeaux/Tshirt-EyesOnTheHorizon.jpg",
@@ -170,7 +160,7 @@ const wishes = [
 },
 
 {
-    id: 18,
+    id: 17,
     name: "Tshirt - Eyes On The Stars - Taille M",
     category: "Mode",
     image: "images/cadeaux/Tshirt-EyesOnTheStars.jpg",
@@ -180,7 +170,7 @@ const wishes = [
 },
 
 {
-    id: 19,
+    id: 18,
     name: "Tshirt - Hard Times - Taille M",
     category: "Mode",
     image: "images/cadeaux/Tshirt-HardTimes.jpg",
@@ -190,7 +180,7 @@ const wishes = [
 },
 
 {
-    id: 20,
+    id: 19,
     name: "Hoka - Transport 2 - T41",
     category: "Mode",
     image: "images/cadeaux/hoka-transport-2.jpg",
@@ -200,7 +190,7 @@ const wishes = [
 },
 
 {
-    id: 21,
+    id: 20,
     name: "Omnibus - Ultimate Spider-Man - Vol. 2",
     category: "Loisir",
     image: "images/cadeaux/ultimate-spiderman-2.jpg",
@@ -210,7 +200,7 @@ const wishes = [
 },
 
 {
-    id: 22,
+    id: 21,
     name: "Omnibus - Ultimate Spider-Man - Vol. 3",
     category: "Loisir",
     image: "images/cadeaux/ultimate-spiderman-3.jpg",
@@ -220,7 +210,7 @@ const wishes = [
 },
 
 {
-    id: 23,
+    id: 22,
     name: "Montre Zeppelin Chronograph",
     category: "Mode",
     image: "images/cadeaux/montre-zeppelin-chronograph.jpg",
