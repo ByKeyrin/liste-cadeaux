@@ -181,7 +181,7 @@ const wishes = [
 
 {
     id: 19,
-    name: "Hoka - Transport 2 - T41",
+    name: "Hoka - Transport 2 - T42",
     category: "Mode",
     image: "images/cadeaux/hoka-transport-2.jpg",
     price: 149.95,
