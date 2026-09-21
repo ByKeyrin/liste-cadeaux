@@ -217,5 +217,15 @@ const wishes = [
     price: 379,
     url: "https://ocarat.com/montre-zeppelin-7680-1-100-jahre-chronograph-15552.html?_gl=1*n6asy7*_up*MQ..*_gs*MQ..&gclid=CjwKCAjwzNTUBhAjEiwA7zcvWhxi5U1VKZ77hva_Xcejl7_jKohDi4dde7DpRoW3Tei-RCuN-hAOCRoCxMQQAvD_BwE",
     requiredWishes: null
+},
+
+{
+    id: 23,
+    name: "Prada Eau de Parfum - Paradigme 100mL",
+    category: "Mode",
+    image: "images/cadeaux/Prada-Paradigme.jpg",
+    price: 85.50,
+    url: "https://fr.primor.eu/fr_fr/prada-paradigme-eau-de-parfum-131182.html",
+    requiredWishes: null
 }
 ];
