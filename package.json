@@ -1,0 +1,19 @@
+{
+  "name": "liste-cadeaux",
+  "version": "1.0.0",
+  "description": "🎄 Ma liste de cadeaux — Site web de souhaits Noël",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve .",
+    "lint": "npx eslint js/",
+    "build": "echo 'Pas de build nécessaire (vanilla JS)'",
+    "test": "echo 'Tests à configurer'"
+  },
+  "keywords": ["cadeaux", "noel", "wishlist"],
+  "author": "Kevin LECA",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ByKeyrin/liste-cadeaux"
+  }
+}
