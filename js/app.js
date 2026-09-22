@@ -390,6 +390,10 @@ function displayWishes(category = "Tous") {
         wishlistContainer.appendChild(card);
 
     });
+
+    } catch (error) {
+        console.error("Erreur displayWishes:", error);
+    }
 }
 
 
