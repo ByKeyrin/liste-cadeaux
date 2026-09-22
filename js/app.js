@@ -414,10 +414,11 @@ function createCategoryFilters() {
 
 
     // -----------------------------------------------------
-    // Nettoyage
+    // Nettoyage (supprimer uniquement les boutons catégorie, pas le bouton tri)
     // -----------------------------------------------------
 
-    categoryFilters.innerHTML = "";
+    const existingButtons = categoryFilters.querySelectorAll('.category-button:not(#sort-button)');
+    existingButtons.forEach(btn => btn.remove());
 
 
     // -----------------------------------------------------
