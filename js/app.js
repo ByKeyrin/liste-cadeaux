@@ -8,8 +8,8 @@ console.log("🎄 Application Noël démarrée");
 // VARIABLE POUR LE TRI
 // =========================================================
 
-let currentSort = "default";
-let currentCategory = "Tous";
+let currentSort = localStorage.getItem("sort") || "default";
+let currentCategory = localStorage.getItem("category") || "Tous";
 
 
 // =========================================================
@@ -95,13 +95,26 @@ const dependencyList =
 
 let pendingUrl = null;
 
+// Debounce function
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
 
 // =========================================================
 // FONCTION : AFFICHER LES SOUHAITS
 // =========================================================
 
 function displayWishes(category = "Tous") {
-
+    try {
     if (!wishlistContainer) {
         return;
     }
@@ -168,6 +181,7 @@ function displayWishes(category = "Tous") {
 
         image.alt =
             wish.name;
+        image.loading = "lazy";
 
 
         // =================================================
@@ -501,6 +515,7 @@ function createCategoryFilters() {
         // Clic sur une catégorie
         // -------------------------------------------------
 
+        button.setAttribute("aria-label", "Filtrer par " + category);
         button.addEventListener(
             "click",
             function () {
@@ -585,7 +600,9 @@ if (!wishlistContainer) {
             const currentIndex = sortOptions.indexOf(currentSort);
             const nextIndex = (currentIndex + 1) % sortOptions.length;
             currentSort = sortOptions[nextIndex];
+            localStorage.setItem("sort", currentSort);
             sortButton.textContent = sortLabels[currentSort];
+            sortButton.setAttribute("aria-pressed", currentSort !== "default");
             console.log(`🔽 Tri changé : ${currentSort}`);
             displayWishes(currentCategory);
         });
