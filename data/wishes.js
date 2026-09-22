@@ -227,5 +227,15 @@ const wishes = [
     price: 85.50,
     url: "https://fr.primor.eu/fr_fr/prada-paradigme-eau-de-parfum-131182.html",
     requiredWishes: null
+},
+
+{
+    id: 24,
+    name: "Appareil Photo - Olympus E-M10 Mark II",
+    category: "Loisir",
+    image: "images/cadeaux/Olympus-E-M10-II.jpg",
+    price: 85.50,
+    url: "https://www.amazon.fr/Olympus-Appareil-num%C3%A9rique-compact-Objectif/dp/B017LG73O6/ref=asc_df_B017LG73O6?mcid=2618bda17c033927873efaaa056b247a&tag=googshopfr-21&linkCode=df0&hvadid=701565897021&hvpos=&hvnetw=g&hvrand=4551023610390605615&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9056080&hvtargid=pla-594304351884&hvocijid=4551023610390605615-B017LG73O6-&hvexpln=0&th=1",
+    requiredWishes: null
 }
 ];
