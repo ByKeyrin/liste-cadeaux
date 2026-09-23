@@ -65,7 +65,7 @@ const addCancel = document.getElementById("add-cancel");
    ========================================================= */
 
 // Copie profonde des wishes initiaux pour permettre ajout/suppression
-let localWishes = JSON.parse(JSON.stringify(wishesByPerson));
+const localWishes = JSON.parse(JSON.stringify(wishesByPerson));
 
 function getWishes() {
     return localWishes[currentPerson] || [];
@@ -232,15 +232,13 @@ function displayWishes() {
     wishlistContainer.innerHTML = "";
 
     const wishes = getWishes();
-    const person = people.find(p => p.id === currentPerson);
-
     // Filtrage
     const filteredWishes = currentCategory === "Tous"
         ? wishes
         : wishes.filter(w => w.category === currentCategory);
 
     // Tri
-    let sortedWishes = [...filteredWishes];
+    const sortedWishes = [...filteredWishes];
     if (currentSort === "price-asc") {
         sortedWishes.sort((a, b) => a.price - b.price);
     } else if (currentSort === "price-desc") {
