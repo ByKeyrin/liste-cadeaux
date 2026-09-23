@@ -485,10 +485,10 @@ section("3. Filtres par catégorie");
     // Catégories propres à chaque personne (Lucie)
     app.findTab("lucie").click();
     eq("catégories de lucie",
-        app.categoryButtons().map(app.buttonLabel).join(","), ["Tous", "Loisir", "Maison", "Mode"].join(","));
-    app.findCategory("Maison").click();
-    eq('filtre "Maison" pour lucie', app.wishCards().length, 1);
-    eq('carte affichée pour "Maison"', app.cardTitle(app.wishCards()[0]), "Bougie parfumée - Vanille & Cannelle");
+        app.categoryButtons().map(app.buttonLabel).join(","), ["Tous", "Beauté", "Maison"].join(","));
+    app.findCategory("Beauté").click();
+    eq('filtre "Beauté" pour lucie', app.wishCards().length, 1);
+    eq('carte affichée pour "Beauté"', app.cardTitle(app.wishCards()[0]), "Dolce & Gabbana Light Blue Capri In Love Eau de Parfum");
 
     // Catégorie mémorisée devenue invalide → repli sur "Tous"
     const app2 = createApp({
@@ -627,9 +627,10 @@ section("5. Gestion multi-personnes (wishesByPerson)");
     // Changement de personne via l'onglet Lucie
     app.findTab("lucie").click();
     eq("rendu = liste de lucie", app.wishCards().length, wishesByPerson.lucie.length);
-    eq("1er cadeau lucie", app.cardTitle(app.wishCards()[0]), "Livre - Le Petit Prince (édition collector)");
+    eq("1er cadeau lucie", app.cardTitle(app.wishCards()[0]), "Dolce & Gabbana Light Blue Capri In Love Eau de Parfum");
     check("que des cadeaux de lucie", app.renderedTitles().join("|") === wishesByPerson.lucie.map(w => w.name).join("|"));
-    eq("compteur lucie", app.els["result-counter"].textContent, `${wishesByPerson.lucie.length} cadeaux`);
+    eq("compteur lucie", app.els["result-counter"].textContent,
+        `${wishesByPerson.lucie.length} cadeau${wishesByPerson.lucie.length === 1 ? "" : "x"}`);
     check("onglet actif passe à lucie",
         app.findTab("lucie").classList.contains("active") && !app.findTab("kevin").classList.contains("active"));
     eq("personne mémorisée", app.prefs().personId, "lucie");
@@ -671,7 +672,8 @@ section("5. Gestion multi-personnes (wishesByPerson)");
     eq("ajout : catégorie", app.cardCategory(newCard), "Loisir");
     check("ajout : modale refermée + formulaire réinitialisé",
         !app.els["add-modal"].classList.contains("active") && app.els["add-name"].value === "");
-    eq("ajout : id monotone (max global + 1 = 104)", app.persistState().lastId, 104);
+    const maxId = Math.max(...Object.values(wishesByPerson).flat().map(w => w.id));
+    eq(`ajout : id monotone (max global + 1 = ${maxId + 1})`, app.persistState().lastId, maxId + 1);
     eq("ajout : persisté (schéma v2)", app.persistState().added.kevin.length, 1);
     check("ajout : sans dépendance (requiredWishes null)",
         app.persistState().added.kevin[0].requiredWishes === null);
@@ -721,7 +723,7 @@ section("5. Gestion multi-personnes (wishesByPerson)");
     reloaded.els["add-price"].value = "1";
     reloaded.els["add-url"].value = "https://example.com";
     reloaded.els["add-form"].dispatch("submit");
-    eq("id jamais réutilisé (lastId = 105)", reloaded.persistState().lastId, 105);
+    eq(`id jamais réutilisé (lastId = ${maxId + 2})`, reloaded.persistState().lastId, maxId + 2);
 
     // ---- Migration des anciennes clés (v1 → v2) ----
     const legacyList = wishesByPerson.kevin.filter(w => w.id !== 1);

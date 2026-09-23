@@ -244,30 +244,30 @@ const wishesByPerson = {
     lucie: [
         {
             id: 101,
-            name: "Livre - Le Petit Prince (édition collector)",
-            category: "Loisir",
-            image: "images/cadeaux/petit-prince.jpg",
-            price: 29.99,
-            url: "https://www.fnac.com/a1234567/le-petit-prince-edition-collector",
+            name: "Dolce & Gabbana Light Blue Capri In Love Eau de Parfum",
+            category: "Beauté",
+            image: "images/cadeaux/light-blue-capri-in-love.png",
+            price: 76.95,
+            url: "https://fr.primor.eu/fr_fr/dolce-gabbana-light-blue-capri-in-love-eau-de-parfum-125665.html",
             requiredWishes: null
         },
         {
             id: 102,
-            name: "Bougie parfumée - Vanille & Cannelle",
+            name: "Bouteille isotherme - Active Matt Glycine",
             category: "Maison",
-            image: "images/cadeaux/bougie-vanille.jpg",
-            price: 24.90,
-            url: "https://www.decathlon.fr/p/bougie-parfumee-vanille",
+            image: "images/cadeaux/bouteille-isotherme-active-matt-glycine.png",
+            price: 30,
+            url: "https://www.qwetch.com/products/bouteille-isotherme-active-matt-glycine",
             requiredWishes: null
         },
         {
             id: 103,
-            name: "Écharpe en cachemire - Rose poudré",
-            category: "Mode",
-            image: "images/cadeaux/echache-cachemire.jpg",
-            price: 59.99,
-            url: "https://www.zalando.fr/echache-cachemire-rose",
-            requiredWishes: null
+            name: "Bouteille isotherme Active - Bouchon Sport",
+            category: "Maison",
+            image: "images/cadeaux/bouteille-isotherme-active-bouchon-sport.png",
+            price: 10,
+            url: "https://www.qwetch.com/products/bouteille-isotherme-active-bouchon-sport",
+            requiredWishes: [102]
         }
     ]
 };
