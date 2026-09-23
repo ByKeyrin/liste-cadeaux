@@ -72,13 +72,17 @@
 
     <!-- Filtres / Catégories -->
     <nav id="category-filters" aria-label="Catégories de cadeaux">
-        <button
-            id="sort-button"
-            class="category-button"
-            type="button"
-            aria-label="Trier par prix"
-            aria-pressed="false"
-        >🔽 Trier par</button>
+        <div class="sort-select-wrap">
+            <select
+                id="sort-select"
+                class="category-button sort-select"
+                aria-label="Trier les cadeaux par prix"
+            >
+                <option value="default">Par défaut</option>
+                <option value="price-asc">Prix croissant</option>
+                <option value="price-desc">Prix décroissant</option>
+            </select>
+        </div>
     </nav>
 
     <!-- Compteur de résultats -->

@@ -25,16 +25,8 @@
     };
 
     const SORT_OPTIONS = ["default", "price-asc", "price-desc"];
-    const SORT_LABELS = {
-        "default": "🔽 Trier par",
-        "price-asc": "💰 Prix ↑",
-        "price-desc": "💎 Prix ↓"
-    };
-    const SORT_ARIA_LABELS = {
-        "default": "Trier par prix",
-        "price-asc": "Trier par prix croissant",
-        "price-desc": "Trier par prix décroissant"
-    };
+    // Les libellés des options sont portés par le <select id="sort-select">
+    // du HTML (options default / price-asc / price-desc).
 
     const CATEGORY_ICONS = {
         "Tous": "🎁",
@@ -277,7 +269,7 @@
     const resultCounter = document.getElementById("result-counter");
     const adminToggle = document.getElementById("admin-toggle");
     const addWishBtn = document.getElementById("add-wish-btn");
-    const sortButton = document.getElementById("sort-button");
+    const sortSelect = document.getElementById("sort-select");
     const backToTop = document.getElementById("back-to-top");
 
     // Modale dépendance
@@ -473,9 +465,9 @@
     function renderCategoryFilters() {
         if (!categoryFilters) return;
 
-        // Retirer les anciens boutons catégorie (le bouton tri reste en place)
+        // Retirer les anciens boutons catégorie (le sélecteur tri reste en place)
         categoryFilters
-            .querySelectorAll(".category-button:not(#sort-button)")
+            .querySelectorAll(".category-button:not(#sort-button):not(#sort-select)")
             .forEach(button => button.remove());
 
         const wishes = getWishes();
@@ -515,9 +507,9 @@
                 if (state.category === category) return;
                 state.category = category;
                 savePrefs();
-                // Ne pas toucher au bouton tri (#sort-button porte aussi .category-button)
+                // Ne pas toucher au sélecteur de tri
                 categoryFilters
-                    .querySelectorAll(".category-button:not(#sort-button)")
+                    .querySelectorAll(".category-button:not(#sort-button):not(#sort-select)")
                     .forEach(btn => {
                         btn.classList.remove("active");
                         btn.setAttribute("aria-pressed", "false");
@@ -532,28 +524,25 @@
     }
 
     /* =========================================================
-       BOUTON TRI
+       SÉLECTEUR DE TRI (dropdown)
        ========================================================= */
 
-    function updateSortButton() {
-        if (!sortButton) return;
-        sortButton.textContent = SORT_LABELS[state.sort] || SORT_LABELS["default"];
-        sortButton.setAttribute("aria-pressed", state.sort !== "default" ? "true" : "false");
-        sortButton.setAttribute(
-            "aria-label",
-            SORT_ARIA_LABELS[state.sort] || SORT_ARIA_LABELS["default"]
-        );
+    function updateSortSelect() {
+        if (!sortSelect) return;
+        sortSelect.value = state.sort;
     }
 
     function initSort() {
-        if (!sortButton) return;
-        updateSortButton();
+        if (!sortSelect) return;
 
-        sortButton.addEventListener("click", function () {
-            const idx = SORT_OPTIONS.indexOf(state.sort);
-            state.sort = SORT_OPTIONS[(idx + 1) % SORT_OPTIONS.length];
+        // Restaurer la valeur mémorisée (localStorage → prefs → state.sort)
+        updateSortSelect();
+
+        sortSelect.addEventListener("change", function () {
+            const value = sortSelect.value;
+            if (!SORT_OPTIONS.includes(value)) return;
+            state.sort = value;
             savePrefs();
-            updateSortButton();
             renderWishes();
         });
     }

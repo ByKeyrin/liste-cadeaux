@@ -6,6 +6,10 @@
     /* Palette — fonds chauds et doux */
     --bg-primary: #faf8f5;
     --bg-secondary: #f4f1eb;
+    /* Voile semi-transparent posé sur la photo du chalet (lisibilité) */
+    --background-overlay: rgba(42, 32, 24, 0.42);
+    --text-on-image: #fffaf1;
+    --text-on-image-soft: #f4efe5;
     --bg-card: rgba(255, 255, 255, 0.82);
     --bg-card-hover: rgba(255, 255, 255, 0.96);
     --bg-glass: rgba(255, 255, 255, 0.65);
@@ -154,7 +158,18 @@ body {
     line-height: 1.6;
     letter-spacing: 0.005em;
     overflow-x: hidden;
-    background: var(--bg-primary);
+    /* Photo du chalet plein écran + voile semi-transparent */
+    background-color: var(--bg-primary);
+    background-image:
+        linear-gradient(
+            var(--background-overlay),
+            var(--background-overlay)
+        ),
+        url("../images/chalet.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
 }
 
 /* Halo décoratif derrière toute la page */
@@ -177,17 +192,19 @@ body::before {
 }
 
 ::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
+    background: rgba(42, 32, 24, 0.12);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(32, 36, 44, 0.18);
-    border: 2px solid var(--bg-secondary);
+    background: rgba(255, 250, 241, 0.35);
+    border: 2px solid transparent;
+    background-clip: padding-box;
     border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(32, 36, 44, 0.3);
+    background: rgba(255, 250, 241, 0.55);
+    background-clip: padding-box;
 }
 
 
@@ -206,7 +223,7 @@ body::before {
 .snowflake {
     position: absolute;
     top: -30px;
-    color: rgba(150, 165, 180, 0.35);
+    color: rgba(232, 233, 228, 0.6);
     user-select: none;
     text-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
     animation-name: snowfall;
@@ -255,7 +272,7 @@ header {
 }
 
 header h1 {
-    color: var(--green-dark);
+    color: var(--text-on-image);
     font-family: var(--font-display);
     font-size: clamp(2.1rem, 5.5vw, 3.4rem);
     font-weight: 650;
@@ -263,6 +280,7 @@ header h1 {
     letter-spacing: -0.015em;
     line-height: 1.1;
     margin-bottom: var(--sp-3);
+    text-shadow: 0 2px 14px rgba(24, 18, 12, 0.45);
     text-wrap: balance;
 }
 
@@ -280,11 +298,12 @@ header h1 .title-emoji {
 }
 
 header .subtitle {
-    color: var(--text-secondary);
+    color: var(--text-on-image-soft);
     font-size: clamp(0.98rem, 2vw, 1.1rem);
     font-weight: 450;
     max-width: 46ch;
     margin: 0 auto;
+    text-shadow: 0 1px 8px rgba(24, 18, 12, 0.4);
     text-wrap: pretty;
 }
 
@@ -389,24 +408,47 @@ header .subtitle {
     gap: var(--sp-2);
 }
 
-/* Bouton tri */
-#sort-button {
-    background: rgba(168, 124, 79, 0.1);
-    border-color: rgba(168, 124, 79, 0.28);
+/* Sélecteur de tri — <select> déguisé en bouton pilule (glassmorphism) */
+.sort-select-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    color: var(--gold);
+    transition: color var(--duration) var(--ease);
+}
+
+/* Chevron personnalisé (remplace la flèche native) */
+.sort-select-wrap::after {
+    content: "▾";
+    position: absolute;
+    right: 15px;
+    font-size: 0.85rem;
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* Le select reprend le style pilule + verre des .category-button
+   (spécificité renforcée pour dominer l'ordre des règles .category-button) */
+.category-button.sort-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 36px;
+    cursor: pointer;
+    border-color: rgba(168, 124, 79, 0.35);
     color: var(--gold);
 }
 
-#sort-button:hover {
-    background: rgba(168, 124, 79, 0.18);
-    border-color: rgba(168, 124, 79, 0.45);
+.category-button.sort-select:hover {
+    background-color: rgba(255, 255, 255, 0.94);
+    border-color: rgba(168, 124, 79, 0.5);
 }
 
-#sort-button.active,
-#sort-button[aria-pressed="true"] {
-    background: var(--gold);
-    color: #fff;
-    border-color: var(--gold);
-    box-shadow: 0 4px 14px rgba(168, 124, 79, 0.3);
+/* Menu natif : toujours en clair pour la lisibilité */
+.sort-select option {
+    background: #fff;
+    color: var(--text);
 }
 
 /* Boutons catégorie */
@@ -475,12 +517,13 @@ header .subtitle {
     width: min(1440px, calc(100% - 2 * var(--sp-6)));
     margin: 0 auto;
     padding: 0 0 var(--sp-5);
-    color: var(--text-muted);
+    color: rgba(244, 239, 229, 0.85);
     font-size: 0.85rem;
     font-weight: 500;
     text-align: center;
     letter-spacing: 0.04em;
     text-transform: uppercase;
+    text-shadow: 0 1px 6px rgba(24, 18, 12, 0.4);
 }
 
 
@@ -1025,11 +1068,12 @@ body.admin-mode .wish-card .btn-delete {
 footer {
     text-align: center;
     padding: var(--sp-10) var(--sp-5) calc(var(--sp-16) + env(safe-area-inset-bottom, 0px));
-    color: var(--text-muted);
+    color: rgba(244, 239, 229, 0.85);
     font-size: 0.875rem;
     letter-spacing: 0.01em;
     position: relative;
     z-index: 1;
+    text-shadow: 0 1px 6px rgba(24, 18, 12, 0.4);
 }
 
 footer::before {
@@ -1038,7 +1082,7 @@ footer::before {
     width: min(220px, 50%);
     height: 1px;
     margin: 0 auto var(--sp-6);
-    background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 250, 241, 0.3), transparent);
 }
 
 .footer-heart span[aria-hidden="true"] {
@@ -1282,8 +1326,9 @@ body.admin-mode #admin-toggle {
     grid-column: 1 / -1;
     text-align: center;
     padding: var(--sp-16) var(--sp-5);
-    color: var(--text-muted);
+    color: var(--text-on-image-soft);
     animation: fadeInUp 0.4s var(--ease) both;
+    text-shadow: 0 1px 8px rgba(24, 18, 12, 0.4);
 }
 
 .empty-state .empty-icon {

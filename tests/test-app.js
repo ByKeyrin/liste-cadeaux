@@ -216,7 +216,7 @@ function createApp(seed = {}) {
     register("category-filters");
     register("person-selector");
     register("result-counter");
-    register("sort-button", "button");
+    register("sort-select", "select");
     register("admin-toggle", "button");
     register("add-wish-btn", "button");
     register("back-to-top", "button");
@@ -298,7 +298,7 @@ function createApp(seed = {}) {
         renderedTitles: () => wishCards().map(cardTitle),
         renderedPrices: () => wishCards().map(cardPrice),
         personTabs: () => els["person-selector"].children,
-        categoryButtons: () => els["category-filters"].children.filter(b => b.id !== "sort-button"),
+        categoryButtons: () => els["category-filters"].children.filter(b => b.id !== "sort-select"),
         buttonLabel: btn => btn.children[1].textContent,
         findCard: name => wishCards().find(c => cardTitle(c) === name),
         findCategory: name => app.categoryButtons().find(b => app.buttonLabel(b) === name),
@@ -374,19 +374,23 @@ section("2. Tri croissant / décroissant");
     const app = createApp();
     eq("ordre d'origine conservé en mode default", app.renderedTitles().join("|"), originalOrder);
 
-    // Bouton tri : default → price-asc → price-desc → default
-    const sortBtn = app.els["sort-button"];
-    eq("libellé initial du bouton tri", sortBtn.textContent, "🔽 Trier par");
+    // Sélecteur de tri : default / price-asc / price-desc
+    const sortSelect = app.els["sort-select"];
+    eq("valeur initiale du select tri", sortSelect.value, "default");
 
-    sortBtn.click(); // price-asc
+    const chooseSort = value => {
+        sortSelect.value = value;
+        sortSelect.dispatch("change");
+    };
+
+    chooseSort("price-asc");
     const ascPrices = app.renderedPrices();
-    eq("un clic → price-asc", app.prefs().sort, "price-asc");
+    eq("choix price-asc → prefs mises à jour", app.prefs().sort, "price-asc");
     eq("tri ascendant : tous les cadeaux rendus", ascPrices.length, kevin.length);
     check("tri ascendant : prix non décroissants", ascPrices.every((p, i) => i === 0 || ascPrices[i - 1] <= p));
     eq("tri ascendant : prix minimum en tête", ascPrices[0], Math.min(...kevin.map(w => w.price)));
     eq("tri ascendant : prix maximum en fin", ascPrices[ascPrices.length - 1], Math.max(...kevin.map(w => w.price)));
-    check("libellé du bouton mis à jour (Prix ↑)", sortBtn.textContent.includes("Prix ↑"));
-    eq("aria-pressed=true quand tri actif", sortBtn.getAttribute("aria-pressed"), "true");
+    eq("valeur du select = price-asc", sortSelect.value, "price-asc");
 
     // Prix égaux → départage alphabétique stable (3 t-shirts à 37 €)
     const ascTitles = app.renderedTitles();
@@ -397,18 +401,25 @@ section("2. Tri croissant / décroissant");
     const renderedTshirts = ascTitles.filter(t => tshirts.includes(t));
     eq("prix égaux → départage alphabétique (tri asc)", renderedTshirts.join("|"), tshirts.join("|"));
 
-    sortBtn.click(); // price-desc
+    chooseSort("price-desc");
     const descPrices = app.renderedPrices();
-    eq("deux clics → price-desc", app.prefs().sort, "price-desc");
+    eq("choix price-desc → prefs mises à jour", app.prefs().sort, "price-desc");
     check("tri descendant : prix non croissants", descPrices.every((p, i) => i === 0 || descPrices[i - 1] >= p));
     eq("tri descendant : prix maximum en tête", descPrices[0], Math.max(...kevin.map(w => w.price)));
     check("tri descendant : aucun cadeau perdu ni dupliqué",
         app.renderedTitles().slice().sort().join("|") === kevin.map(w => w.name).slice().sort().join("|"));
 
-    sortBtn.click(); // default
-    eq("trois clics → retour à default", app.prefs().sort, "default");
+    chooseSort("default");
+    eq("retour à default", app.prefs().sort, "default");
     eq("retour default : ordre d'origine", app.renderedTitles().join("|"), originalOrder);
-    eq("aria-pressed=false en mode default", sortBtn.getAttribute("aria-pressed"), "false");
+    eq("valeur du select = default", sortSelect.value, "default");
+
+    // Valeur inconnue → ignorée (aucune mise à jour)
+    chooseSort("price-asc");
+    sortSelect.value = "nawak";
+    sortSelect.dispatch("change");
+    eq("valeur inconnue du select ignorée", app.prefs().sort, "price-asc");
+    sortSelect.value = "price-asc"; // resynchronisé avec l'état
 
     // Le tri ne modifie pas les données source
     eq("tri non destructif sur les données", kevin.map(w => w.name).join("|"), originalOrder);
@@ -420,6 +431,7 @@ section("2. Tri croissant / décroissant");
     const restored = app2.renderedPrices();
     check("préférence price-asc restaurée au démarrage",
         restored.every((p, i) => i === 0 || restored[i - 1] <= p));
+    eq("select tri restauré depuis localStorage", app2.els["sort-select"].value, "price-asc");
 }
 
 /* =========================================================
@@ -462,7 +474,8 @@ section("3. Filtres par catégorie");
     eq("filtre Mode mémorisé", app.prefs().category, "Mode");
 
     // Filtre + tri combinés
-    app.els["sort-button"].click(); // → price-asc
+    app.els["sort-select"].value = "price-asc";
+    app.els["sort-select"].dispatch("change");
     const prices = app.renderedPrices();
     check("filtre Mode + tri croissant combinés",
         prices.length === kevin.filter(w => w.category === "Mode").length &&
