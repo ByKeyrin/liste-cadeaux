@@ -541,6 +541,8 @@ function createCategoryFilters() {
                     "active"
                 );
 
+                currentCategory = category;
+                localStorage.setItem("category", category);
 
                 displayWishes(category);
             }
