@@ -4,183 +4,225 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nos listes de cadeaux</title>
 
-    <title>Ma liste de cadeaux</title>
-
-    <meta name="description" content="Quelques idées de cadeaux qui me feraient plaisir !">
-
-    <meta property="og:title" content="Ma liste de cadeaux">
-    <meta property="og:description" content="Quelques idées de cadeaux qui me feraient plaisir !">
+    <meta name="description" content="Nos listes de souhaits — Kévin & Lucie">
+    <meta property="og:title" content="Nos listes de cadeaux">
+    <meta property="og:description" content="Quelques idées de cadeaux qui nous feraient plaisir !">
 
     <link
         rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎁</text></svg>"
     >
 
+    <!-- Police Inter (moderne) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="css/style.css">
 </head>
 
-<!-- =====================================================
-     BOUTON RETOUR EN HAUT
-     ===================================================== -->
-
 <body>
 
+    <!-- Bouton retour en haut -->
     <button
         id="back-to-top"
         type="button"
         aria-label="Retour en haut"
         title="Retour en haut"
-    >
-        ↑
-    </button>
+    >↑</button>
 
+    <!-- Bouton mode admin -->
+    <button
+        id="admin-toggle"
+        type="button"
+        title="Mode édition"
+    >✎ Admin</button>
 
-    <!-- =====================================================
-         FLOCONS
-         ===================================================== -->
+    <!-- Bouton ajouter (admin) -->
+    <button
+        id="add-wish-btn"
+        type="button"
+        aria-label="Ajouter un cadeau"
+        title="Ajouter un cadeau"
+    >+</button>
 
+    <!-- Flocons -->
     <div id="snow"></div>
 
-
-    <!-- =====================================================
-         EN-TÊTE
-         ===================================================== -->
-
+    <!-- En-tête -->
     <header>
-
-        <h1>🎁 Ma liste de cadeaux 🎁</h1>
-
-        <p>
-            Quelques idées de cadeaux qui me feraient plaisir !
+        <h1>🎁 Nos listes de cadeaux</h1>
+        <p class="subtitle">
+            Quelques idées de cadeaux qui nous feraient plaisir !
         </p>
-
     </header>
 
+    <!-- Sélecteur de personne -->
+    <nav id="person-selector" aria-label="Choisir la liste">
+        <!-- Généré par JS -->
+    </nav>
 
-    <!-- =====================================================
-         FILTRES / CATÉGORIES
-         ===================================================== -->
-
+    <!-- Filtres / Catégories -->
     <nav id="category-filters" aria-label="Catégories de cadeaux">
-
-        <!-- Tri par prix -->
         <button
             id="sort-button"
             class="category-button"
             type="button"
             aria-label="Trier par prix"
             aria-pressed="false"
-        >
-            🔽 Trier par
-        </button>
-
+        >🔽 Trier par</button>
     </nav>
 
-
-    <!-- =====================================================
-         COMPTEUR DE RÉSULTATS
-         ===================================================== -->
+    <!-- Compteur de résultats -->
     <div id="result-counter"></div>
 
-
-    <!-- =====================================================
-         LISTE DES SOUHAITS
-         ===================================================== -->
+    <!-- Liste des souhaits -->
     <main id="wishlist">
-        <!-- Les cartes sont générées automatiquement par app.js -->
+        <!-- Les cartes sont générées par app.js -->
     </main>
 
-
-    <!-- =====================================================
-         FOOTER
-         ===================================================== -->
-
+    <!-- Footer -->
     <footer>
-
-        <p>🎅 Joyeux Noël !</p>
-
+        <p>Fait avec ❤️ par Kévin & Lucie</p>
     </footer>
-
 
     <!-- =====================================================
          POP-UP DE DÉPENDANCE
          ===================================================== -->
-
     <div
         id="dependency-modal"
         class="modal-overlay"
         aria-hidden="true"
     >
-
         <div
             class="modal"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"
         >
-
             <button
                 id="modal-close"
                 class="modal-close"
                 type="button"
                 aria-label="Fermer"
-            >
-                ×
-            </button>
+            >×</button>
 
+            <div class="modal-icon">🎁</div>
 
-            <div class="modal-icon">
-                🎁
-            </div>
-
-
-            <h2 id="modal-title">
-                Attention
-            </h2>
-
+            <h2 id="modal-title">Attention</h2>
 
             <p class="modal-introduction">
-                Cet article n'est utile que si Kévin reçoit
+                Cet article n'est utile que si tu reçois
                 d'abord le ou les cadeaux suivants :
             </p>
 
-
             <div id="dependency-list">
-                <!-- Les dépendances sont ajoutées par JavaScript -->
+                <!-- Ajouté par JS -->
             </div>
 
-
             <div class="modal-actions">
-
                 <button
                     id="modal-cancel"
                     class="modal-button modal-button-secondary"
                     type="button"
-                >
-                    Retour
-                </button>
-
+                >Retour</button>
 
                 <button
                     id="modal-confirm"
                     class="modal-button modal-button-primary"
                     type="button"
-                >
-                    Voir le produit
-                </button>
-
+                >Voir le produit</button>
             </div>
-
         </div>
-
     </div>
 
-
     <!-- =====================================================
-         JAVASCRIPT
+         POP-UP D'AJOUT
          ===================================================== -->
+    <div
+        id="add-modal"
+        class="modal-overlay"
+        aria-hidden="true"
+    >
+        <div
+            class="modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-modal-title"
+        >
+            <button
+                id="add-modal-close"
+                class="modal-close"
+                type="button"
+                aria-label="Fermer"
+            >×</button>
 
+            <div class="modal-icon">✨</div>
+
+            <h2 id="add-modal-title">Ajouter un cadeau</h2>
+
+            <form id="add-form">
+                <label for="add-name">Nom du cadeau</label>
+                <input
+                    type="text"
+                    id="add-name"
+                    placeholder="Ex: Kettlebell 12kg"
+                    required
+                >
+
+                <label for="add-category">Catégorie</label>
+                <select id="add-category" required>
+                    <option value="Sport">🏋️ Sport</option>
+                    <option value="Mode">👕 Mode</option>
+                    <option value="Loisir">🎮 Loisir</option>
+                    <option value="Maison">🏠 Maison</option>
+                    <option value="Beauté">💄 Beauté</option>
+                    <option value="Cuisine">🍳 Cuisine</option>
+                </select>
+
+                <label for="add-price">Prix (€)</label>
+                <input
+                    type="number"
+                    id="add-price"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    required
+                >
+
+                <label for="add-image">URL de l'image (optionnel)</label>
+                <input
+                    type="url"
+                    id="add-image"
+                    placeholder="https://..."
+                >
+
+                <label for="add-url">Lien du produit</label>
+                <input
+                    type="url"
+                    id="add-url"
+                    placeholder="https://..."
+                    required
+                >
+
+                <div class="form-actions">
+                    <button
+                        type="button"
+                        id="add-cancel"
+                        class="modal-button modal-button-secondary"
+                    >Annuler</button>
+                    <button
+                        type="submit"
+                        class="modal-button modal-button-primary"
+                    >Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
     <script src="data/wishes.js"></script>
     <script src="js/app.js"></script>
 
