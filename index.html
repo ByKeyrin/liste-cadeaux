@@ -7,6 +7,11 @@
 
     <title>Ma liste de cadeaux</title>
 
+    <meta name="description" content="Quelques idées de cadeaux qui me feraient plaisir !">
+
+    <meta property="og:title" content="Ma liste de cadeaux">
+    <meta property="og:description" content="Quelques idées de cadeaux qui me feraient plaisir !">
+
     <link
         rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎁</text></svg>"
@@ -19,16 +24,17 @@
      BOUTON RETOUR EN HAUT
      ===================================================== -->
 
-<button
-    id="back-to-top"
-    type="button"
-    aria-label="Retour en haut"
-    title="Retour en haut"
->
-    ↑
-</button>
-
 <body>
+
+    <button
+        id="back-to-top"
+        type="button"
+        aria-label="Retour en haut"
+        title="Retour en haut"
+    >
+        ↑
+    </button>
+
 
     <!-- =====================================================
          FLOCONS
@@ -64,50 +70,23 @@
             class="category-button"
             type="button"
             aria-label="Trier par prix"
+            aria-pressed="false"
         >
             🔽 Trier par
-        </button>
-
-        <!-- Catégories -->
-        <button
-            class="category-button active"
-            data-category="all"
-            type="button"
-        >
-            Tous
-        </button>
-
-        <button
-            class="category-button"
-            data-category="Mode"
-            type="button"
-        >
-            👕 Mode
-        </button>
-
-        <button
-            class="category-button"
-            data-category="Sport"
-            type="button"
-        >
-            🏋️ Sport
-        </button>
-
-        <button
-            class="category-button"
-            data-category="Loisir"
-            type="button"
-        >
-            🎮 Loisir
         </button>
 
     </nav>
 
 
     <!-- =====================================================
+         COMPTEUR DE RÉSULTATS
+         ===================================================== -->
+    <div id="result-counter"></div>
+
+
+    <!-- =====================================================
          LISTE DES SOUHAITS
          ===================================================== -->
-
     <main id="wishlist">
         <!-- Les cartes sont générées automatiquement par app.js -->
     </main>

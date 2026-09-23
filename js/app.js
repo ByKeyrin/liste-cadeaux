@@ -88,25 +88,16 @@ const modalConfirm =
 const dependencyList =
     document.getElementById("dependency-list");
 
+const resultCounter =
+    document.getElementById("result-counter");
+
 
 // =========================================================
 // VARIABLE POUR LE LIEN EN ATTENTE
 // =========================================================
 
 let pendingUrl = null;
-
-// Debounce function
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
+let modalTriggerElement = null;
 
 
 // =========================================================
@@ -155,6 +146,18 @@ function displayWishes(category = "Tous") {
     );
 
     // -----------------------------------------------------
+    // Compteur de résultats
+    // -----------------------------------------------------
+
+    if (resultCounter) {
+        const count = sortedWishes.length;
+        resultCounter.textContent =
+            count === 1
+                ? "1 cadeau affiché"
+                : `${count} cadeaux affichés`;
+    }
+
+    // -----------------------------------------------------
     // Génération des cartes
     // -----------------------------------------------------
 
@@ -181,8 +184,21 @@ function displayWishes(category = "Tous") {
 
         image.alt =
             wish.name;
+
         image.loading = "lazy";
 
+        // Fallback image for broken images
+        image.onerror = function() {
+            this.onerror = null; // Prevent infinite loop
+            this.src = 'data:image/svg+xml,' + encodeURIComponent(
+                '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">' +
+                '<rect width="400" height="300" fill="#f5f0e8"/>' +
+                '<text x="200" y="140" text-anchor="middle" font-size="48" fill="#b18a4a">🎁</text>' +
+                '<text x="200" y="180" text-anchor="middle" font-size="16" fill="#706f68">Image non disponible</text>' +
+                '</svg>'
+            );
+            this.alt = wish.name + ' - Image non disponible';
+        };
 
         // =================================================
         // CONTENU
@@ -459,8 +475,8 @@ function createCategoryFilters() {
         );
 
 
-        // Premier bouton actif
-        if (category === "Tous") {
+        // Activer le bouton correspondant à la catégorie sauvegardée
+        if (category === currentCategory) {
 
             button.classList.add(
                 "active"
@@ -602,6 +618,16 @@ if (!wishlistContainer) {
             "price-asc": "💰 Prix ↑",
             "price-desc": "💎 Prix ↓"
         };
+        const sortAriaLabels = {
+            "default": "Trier par prix",
+            "price-asc": "Trier par prix croissant",
+            "price-desc": "Trier par prix décroissant"
+        };
+
+        // Restaurer le label du tri au chargement
+        sortButton.textContent = sortLabels[currentSort] || sortLabels["default"];
+        sortButton.setAttribute("aria-pressed", currentSort !== "default" ? "true" : "false");
+        sortButton.setAttribute("aria-label", sortAriaLabels[currentSort] || sortAriaLabels["default"]);
 
         sortButton.addEventListener("click", function () {
             const currentIndex = sortOptions.indexOf(currentSort);
@@ -609,7 +635,8 @@ if (!wishlistContainer) {
             currentSort = sortOptions[nextIndex];
             localStorage.setItem("sort", currentSort);
             sortButton.textContent = sortLabels[currentSort];
-            sortButton.setAttribute("aria-pressed", currentSort !== "default");
+            sortButton.setAttribute("aria-pressed", currentSort !== "default" ? "true" : "false");
+            sortButton.setAttribute("aria-label", sortAriaLabels[currentSort]);
             console.log(`🔽 Tri changé : ${currentSort}`);
             displayWishes(currentCategory);
         });
@@ -619,7 +646,7 @@ if (!wishlistContainer) {
     // Affichage initial
     // -----------------------------------------------------
 
-    displayWishes("Tous");
+    displayWishes(currentCategory);
 
 
     console.log(
@@ -627,6 +654,21 @@ if (!wishlistContainer) {
     );
 }
 
+
+// =========================================================
+// HELPER : ÉLÉMENTS FOCUSABLES
+// =========================================================
+
+function getFirstFocusableElement(container) {
+    const focusableSelectors = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    const elements = container.querySelectorAll(focusableSelectors);
+    return elements.length > 0 ? elements[0] : null;
+}
+
+function getFocusableElements(container) {
+    const focusableSelectors = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+    return Array.from(container.querySelectorAll(focusableSelectors));
+}
 
 // =========================================================
 // OUVERTURE DE LA POP-UP
@@ -638,6 +680,7 @@ function openModal() {
         return;
     }
 
+    modalTriggerElement = document.activeElement;
     modal.classList.add("active");
 
     modal.setAttribute(
@@ -647,6 +690,15 @@ function openModal() {
 
     document.body.style.overflow =
         "hidden";
+
+    // Focus the first focusable element inside the modal
+    const modalDialog = modal.querySelector("[role='dialog']");
+    if (modalDialog) {
+        const firstFocusable = getFirstFocusableElement(modalDialog);
+        if (firstFocusable) {
+            firstFocusable.focus();
+        }
+    }
 }
 
 
@@ -672,6 +724,12 @@ function closeModal() {
 
     pendingUrl =
         null;
+
+    // Restore focus to the trigger element
+    if (modalTriggerElement && typeof modalTriggerElement.focus === "function") {
+        modalTriggerElement.focus();
+    }
+    modalTriggerElement = null;
 }
 
 
@@ -761,6 +819,40 @@ document.addEventListener(
             modal.classList.contains("active")
         ) {
             closeModal();
+        }
+
+        // Focus trap for modal
+        if (
+            event.key === "Tab" &&
+            modal &&
+            modal.classList.contains("active")
+        ) {
+            const modalDialog = modal.querySelector("[role='dialog']");
+            if (!modalDialog) {
+                return;
+            }
+
+            const focusableElements = getFocusableElements(modalDialog);
+            if (focusableElements.length === 0) {
+                return;
+            }
+
+            const firstElement = focusableElements[0];
+            const lastElement = focusableElements[focusableElements.length - 1];
+
+            if (event.shiftKey) {
+                // Shift+Tab: if focus is on first element, wrap to last
+                if (document.activeElement === firstElement) {
+                    event.preventDefault();
+                    lastElement.focus();
+                }
+            } else {
+                // Tab: if focus is on last element, wrap to first
+                if (document.activeElement === lastElement) {
+                    event.preventDefault();
+                    firstElement.focus();
+                }
+            }
         }
     }
 );

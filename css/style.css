@@ -240,21 +240,21 @@ header p {
    ========================================================= */
 
 #sort-button {
-    display: inline-flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    background: rgba(177, 138, 74, 0.2) !important;
-    border-color: var(--gold) !important;
-    color: var(--green-dark) !important;
+    display: inline-flex;
+    visibility: visible;
+    opacity: 1;
+    background: rgba(177, 138, 74, 0.2);
+    border-color: var(--gold);
+    color: var(--green-dark);
 }
 
 #sort-button:hover {
-    background: rgba(177, 138, 74, 0.4) !important;
+    background: rgba(177, 138, 74, 0.4);
 }
 
 #sort-button.active {
-    background: var(--gold) !important;
-    color: white !important;
+    background: var(--gold);
+    color: white;
 }
 
 
@@ -347,6 +347,23 @@ header p {
     box-shadow:
         0 8px 20px
         rgba(36, 70, 56, 0.32);
+}
+
+
+/* =========================================================
+   COMPTEUR DE RÉSULTATS
+   ========================================================= */
+
+#result-counter {
+    width: min(
+        1400px,
+        calc(100% - 48px)
+    );
+    margin: 0 auto;
+    padding: 10px 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    text-align: center;
 }
 
 
