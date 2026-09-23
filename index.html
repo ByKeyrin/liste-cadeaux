@@ -4,21 +4,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nos listes de cadeaux</title>
+    <title>Nos listes de cadeaux — Kévin & Lucie</title>
 
     <meta name="description" content="Nos listes de souhaits — Kévin & Lucie">
+    <meta name="theme-color" content="#faf8f5" media="(prefers-color-scheme: light)">
+    <meta name="color-scheme" content="light">
     <meta property="og:title" content="Nos listes de cadeaux">
     <meta property="og:description" content="Quelques idées de cadeaux qui nous feraient plaisir !">
+    <meta property="og:type" content="website">
 
     <link
         rel="icon"
         href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎁</text></svg>"
     >
 
-    <!-- Police Inter (moderne) -->
+    <!-- Polices : Fraunces (titres, chaleureux) + Inter (texte, lisible) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500..700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
 
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -31,14 +37,14 @@
         type="button"
         aria-label="Retour en haut"
         title="Retour en haut"
-    >↑</button>
+    ><span aria-hidden="true">↑</span></button>
 
     <!-- Bouton mode admin -->
     <button
         id="admin-toggle"
         type="button"
         title="Mode édition"
-    >✎ Admin</button>
+    ><span aria-hidden="true">✎</span> Admin</button>
 
     <!-- Bouton ajouter (admin) -->
     <button
@@ -46,16 +52,16 @@
         type="button"
         aria-label="Ajouter un cadeau"
         title="Ajouter un cadeau"
-    >+</button>
+    ><span aria-hidden="true">+</span></button>
 
     <!-- Flocons -->
-    <div id="snow"></div>
+    <div id="snow" aria-hidden="true"></div>
 
     <!-- En-tête -->
     <header>
-        <h1>🎁 Nos listes de cadeaux</h1>
+        <h1><span class="title-emoji" aria-hidden="true">🎁</span> Nos listes de cadeaux</h1>
         <p class="subtitle">
-            Quelques idées de cadeaux qui nous feraient plaisir !
+            Quelques idées de cadeaux qui nous feraient plaisir&nbsp;!
         </p>
     </header>
 
@@ -76,7 +82,7 @@
     </nav>
 
     <!-- Compteur de résultats -->
-    <div id="result-counter"></div>
+    <div id="result-counter" aria-live="polite"></div>
 
     <!-- Liste des souhaits -->
     <main id="wishlist">
@@ -85,7 +91,7 @@
 
     <!-- Footer -->
     <footer>
-        <p>Fait avec ❤️ par Kévin & Lucie</p>
+        <p class="footer-heart">Fait avec <span aria-hidden="true">❤️</span><span class="sr-only">amour</span> par Kévin & Lucie</p>
     </footer>
 
     <!-- =====================================================
@@ -107,15 +113,14 @@
                 class="modal-close"
                 type="button"
                 aria-label="Fermer"
-            >×</button>
+            ><span aria-hidden="true">×</span></button>
 
-            <div class="modal-icon">🎁</div>
+            <div class="modal-icon" aria-hidden="true">🎁</div>
 
             <h2 id="modal-title">Attention</h2>
-
             <p class="modal-introduction">
                 Cet article n'est utile que si tu reçois
-                d'abord le ou les cadeaux suivants :
+                d'abord le ou les cadeaux suivants&nbsp;:
             </p>
 
             <div id="dependency-list">
@@ -157,18 +162,18 @@
                 class="modal-close"
                 type="button"
                 aria-label="Fermer"
-            >×</button>
+            ><span aria-hidden="true">×</span></button>
 
-            <div class="modal-icon">✨</div>
+            <div class="modal-icon" aria-hidden="true">✨</div>
 
             <h2 id="add-modal-title">Ajouter un cadeau</h2>
-
             <form id="add-form">
                 <label for="add-name">Nom du cadeau</label>
                 <input
                     type="text"
                     id="add-name"
-                    placeholder="Ex: Kettlebell 12kg"
+                    placeholder="Ex : Kettlebell 12 kg"
+                    autocomplete="off"
                     required
                 >
 
@@ -188,11 +193,11 @@
                     id="add-price"
                     step="0.01"
                     min="0"
-                    placeholder="0.00"
+                    placeholder="0,00"
                     required
                 >
 
-                <label for="add-image">URL de l'image (optionnel)</label>
+                <label for="add-image">URL de l'image <span class="label-optional">(optionnel)</span></label>
                 <input
                     type="url"
                     id="add-image"
