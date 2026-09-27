@@ -1,12 +1,24 @@
-/* =========================================================
-   🎁 Liste de cadeaux — logique principale
-   Refactor ROTOR :
-   - IIFE ("use strict") : plus aucune fuite de globals
-   - Persistance v2 (ajouts + suppressions explicites)
-   - Préférences validées (personne / catégorie / tri)
-   - Modals accessibles (focus piégé, retour du focus)
-   - Rendu factorisé via refresh()
-   ========================================================= */
+/**
+ * @file app.js
+ * @brief Logique principale de l'application liste de cadeaux
+ * @author Kevin Leca
+ * @version 2.0
+ * @date 2026
+ *
+ * @brief Module principal de l'application "Ma Liste de Cadeaux".
+ *
+ * Ce fichier contient toute la logique côté client :
+ * - Gestion du stockage local (localStorage) avec migration v2
+ * - Interface utilisateur : onglets personne, filtres catégorie, tri prix
+ * - Système de dépendances entre cadeaux (alerte avant achat)
+ * - Modales accessibles (focus piégé, retour du focus)
+ * - Mode admin : ajout / suppression de cadeaux
+ * - Animation flocons
+ *
+ * Architecture : IIFE ("use strict") — aucune fuite de globals.
+ * Données : chargées depuis data/wishes.js (variable globale `wishesByPerson`).
+ */
+
 (() => {
     "use strict";
 
@@ -14,6 +26,16 @@
        CONFIGURATION
        ========================================================= */
 
+    /**
+     * @brief Clés de stockage localStorage utilisées par l'application
+     * @const {Object} STORAGE_KEYS
+     * @property {string} prefs - Clé pour les préférences utilisateur (personne, tri, catégorie)
+     * @property {string} state - Clé pour l'état persistant v2 (ajouts, suppressions)
+     * @property {string} legacyWishes - Ancienne clé des souhaits (migration v1 → v2)
+     * @property {string} legacyPerson - Ancienne clé de la personne sélectionnée
+     * @property {string} legacySort - Ancien critère de tri
+     * @property {string} legacyCategory - Ancienne catégorie sélectionnée
+     */
     const STORAGE_KEYS = {
         prefs: "wishlist.prefs",
         state: "wishlist.state",
@@ -24,10 +46,20 @@
         legacyCategory: "category"
     };
 
+    /**
+     * @brief Options de tri disponibles pour la liste des cadeaux
+     * @const {string[]} SORT_OPTIONS
+     * @description Les libellés visuels sont portés par le `<select id="sort-select">` du HTML.
+     *              Valeurs possibles : "default", "price-asc", "price-desc"
+     */
     const SORT_OPTIONS = ["default", "price-asc", "price-desc"];
-    // Les libellés des options sont portés par le <select id="sort-select">
-    // du HTML (options default / price-asc / price-desc).
 
+    /**
+     * @brief Map des icônes emoji associées à chaque catégorie de cadeaux
+     * @const {Object.<string, string>} CATEGORY_ICONS
+     * @description Utilisé pour afficher l'emoji à côté du nom de la catégorie
+     *              dans les boutons filtre et les badges de carte.
+     */
     const CATEGORY_ICONS = {
         "Tous": "🎁",
         "Mode": "👕",
@@ -38,7 +70,18 @@
         "Cuisine": "🍳"
     };
 
+    /**
+     * @brief Catégorie par défaut affichée (toutes les catégories)
+     * @const {string} DEFAULT_CATEGORY
+     */
     const DEFAULT_CATEGORY = "Tous";
+
+    /**
+     * @brief ID de la personne sélectionnée par défaut au premier chargement
+     * @const {string} DEFAULT_PERSON
+     * @description Prend la première personne du tableau `people` si elle existe,
+     *              sinon fallback sur "kevin".
+     */
     const DEFAULT_PERSON = people.length ? people[0].id : "kevin";
 
     /* =========================================================
@@ -47,7 +90,20 @@
        privée, fichiers locaux restreints…)
        ========================================================= */
 
+    /**
+     * @brief Wrapper tolérant aux erreurs autour de localStorage
+     * @const {Object} storage
+     * @description Enveloppe les appels à localStorage dans des try/catch
+     *              pour gérer les cas où le stockage est indisponible
+     *              (navigation privée, quota dépassé, etc.)
+     */
     const storage = {
+        /**
+         * @brief Lit une valeur depuis localStorage
+         * @function storage.get
+         * @param {string} key - Clé à lire
+         * @returns {string|null} La valeur stockée ou null si absente/erreur
+         */
         get(key) {
             try {
                 return window.localStorage.getItem(key);
@@ -55,6 +111,12 @@
                 return null;
             }
         },
+        /**
+         * @brief Écrit une valeur dans localStorage
+         * @function storage.set
+         * @param {string} key - Clé à écrire
+         * @param {string} value - Valeur à stocker (sera sérialisée en string)
+         */
         set(key, value) {
             try {
                 window.localStorage.setItem(key, value);
@@ -62,6 +124,11 @@
                 console.warn("⚠️ Impossible de sauvegarder dans localStorage:", error);
             }
         },
+        /**
+         * @brief Supprime une clé de localStorage
+         * @function storage.remove
+         * @param {string} key - Clé à supprimer
+         */
         remove(key) {
             try {
                 window.localStorage.removeItem(key);
@@ -75,6 +142,14 @@
        ÉTAT DE L'UI + PRÉFÉRENCES (validées)
        ========================================================= */
 
+    /**
+     * @brief Charge les préférences utilisateur depuis le localStorage
+     * @function loadPrefs
+     * @returns {Object} Objet contenant les préférences (personId, sort, category)
+     * @description Gère la migration des anciennes clés localStorage vers le schéma v2.
+     *              Si le schéma v2 n'existe pas, tente de récupérer les anciennes
+     *              clés individuelles (legacyPerson, legacySort, legacyCategory).
+     */
     function loadPrefs() {
         const raw = storage.get(STORAGE_KEYS.prefs);
         if (raw) {
@@ -95,8 +170,23 @@
         };
     }
 
+    /**
+     * @brief Préférences chargées depuis le stockage local
+     * @const {Object} prefs
+     */
     const prefs = loadPrefs();
 
+    /**
+     * @brief État réactif de l'interface utilisateur
+     * @const {Object} state
+     * @property {string} state.personId - ID de la personne actuellement sélectionnée
+     * @property {string} state.sort - Critère de tri actif ("default", "price-asc", "price-desc")
+     * @property {string} state.category - Catégorie de filtre active
+     * @property {boolean} state.adminMode - Mode édition activé/désactivé
+     * @property {string|null} state.pendingUrl - URL en attente de confirmation (modale dépendance)
+     * @description Cet objet est la source de vérité pour l'ensemble de l'état UI.
+     *              Toute modification déclenche un appel à `refresh()` ou `renderWishes()`.
+     */
     const state = {
         personId: typeof prefs.personId === "string" ? prefs.personId : DEFAULT_PERSON,
         sort: SORT_OPTIONS.includes(prefs.sort) ? prefs.sort : "default",
@@ -110,6 +200,12 @@
         state.personId = DEFAULT_PERSON;
     }
 
+    /**
+     * @brief Sauvegarde les préférences utilisateur dans le localStorage
+     * @function savePrefs
+     * @description Sérialise l'état actuel (personId, sort, category) en JSON
+     *              et le stocke sous la clé `wishlist.prefs`.
+     */
     function savePrefs() {
         storage.set(STORAGE_KEYS.prefs, JSON.stringify({
             personId: state.personId,
@@ -127,10 +223,25 @@
        remettait systématiquement les données d'origine.
        ========================================================= */
 
+    /**
+     * @brief Crée une structure de persistance vide (schéma v2)
+     * @function createEmptyPersist
+     * @returns {Object} Objet de persistance initialisé avec des structures vides
+     * @description Structure : `{ version: 2, added: {}, deleted: {}, lastId: 0 }`
+     */
     function createEmptyPersist() {
         return { version: 2, added: {}, deleted: {}, lastId: 0 };
     }
 
+    /**
+     * @brief Migre les anciennes données de souhaits (v1) vers le schéma v2
+     * @function migrateLegacyWishes
+     * @param {Object} target - Objet de persistance v2 à remplir
+     * @description Compare les souhaits sauvegardés (v1) avec la base de données
+     *              d'origine pour déduire les ajouts et suppressions explicites.
+     *              Les ajouts = IDs inconnus du fichier de données.
+     *              Les suppressions = IDs du fichier de données absents de la sauvegarde.
+     */
     function migrateLegacyWishes(target) {
         const raw = storage.get(STORAGE_KEYS.legacyWishes);
         if (!raw) return;
@@ -154,6 +265,14 @@
         }
     }
 
+    /**
+     * @brief Charge l'état de persistance depuis le localStorage
+     * @function loadPersist
+     * @returns {Object} Objet de persistance v2 validé
+     * @description Charge le schéma v2 depuis localStorage. Si absent ou invalide,
+     *              crée une structure vide et tente la migration depuis les anciennes données.
+     *              Valide chaque champ avec des garde-fous (type, existence).
+     */
     function loadPersist() {
         const raw = storage.get(STORAGE_KEYS.state);
         if (raw) {
@@ -176,14 +295,31 @@
         return fresh;
     }
 
+    /**
+     * @brief Objet de persistance des modifications (ajouts/suppressions)
+     * @const {Object} persist
+     * @description Contient les ajouts et suppressions locales par personne.
+     *              Modifié en place par `addWish()` et `deleteWish()`.
+     */
     const persist = loadPersist();
 
+    /**
+     * @brief Sauvegarde l'état de persistance dans le localStorage
+     * @function savePersist
+     * @description Sérialise l'objet `persist` en JSON et le stocke sous la clé `wishlist.state`.
+     */
     function savePersist() {
         storage.set(STORAGE_KEYS.state, JSON.stringify(persist));
     }
 
-    // Compteur d'IDs global et monotone : un ID supprimé n'est
-    // jamais réutilisé (évite les collisions avec les dépendances).
+    /**
+     * @brief Initialise le compteur d'IDs globaux à partir des données existantes
+     * @function initIdCounter
+     * @description Parcourt toutes les personnes et leurs souhaits (base + ajoutés)
+     *              pour trouver le maximum d'ID existant. Cela garantit que les nouveaux
+     *              IDs générés sont toujours supérieurs à tous les IDs existants.
+     *              Un ID supprimé n'est jamais réutilisé (évite les collisions).
+     */
     function initIdCounter() {
         let max = Number.isFinite(persist.lastId) ? persist.lastId : 0;
         Object.keys(wishesByPerson).forEach(personId => {
@@ -198,6 +334,12 @@
         persist.lastId = max;
     }
 
+    /**
+     * @brief Génère le prochain ID unique pour un nouveau cadeau
+     * @function nextWishId
+     * @returns {number} L'ID suivant (monotone croissant)
+     * @description Incrémente le compteur `persist.lastId` et retourne la nouvelle valeur.
+     */
     function nextWishId() {
         persist.lastId = (persist.lastId || 0) + 1;
         return persist.lastId;
@@ -207,7 +349,16 @@
        ACCÈS AUX DONNÉES
        ========================================================= */
 
-    // Liste effective = base (data/wishes.js) + ajouts locaux − suppressions
+    /**
+     * @brief Récupère la liste effective des souhaits pour une personne
+     * @function getWishes
+     * @param {string} [personId=state.personId] - ID de la personne cible
+     * @returns {Array<Object>} Liste fusionnée : base (data/) + ajouts locaux − suppressions
+     * @description La liste effective est calculée en temps réel en combinant :
+     *              1. Les souhaits de base (fichier data/wishes.js)
+     *              2. Les ajouts locaux (persist.added[personId])
+     *              3. En soustrayant les suppressions (persist.deleted[personId])
+     */
     function getWishes(personId = state.personId) {
         const base = wishesByPerson[personId] || [];
         const added = persist.added[personId] || [];
@@ -215,12 +366,25 @@
         return base.concat(added).filter(wish => !deleted.has(wish.id));
     }
 
+    /**
+     * @brief Recherche un cadeau par son ID
+     * @function findWish
+     * @param {number} id - ID du cadeau recherché
+     * @param {string} [personId=state.personId] - ID de la personne cible
+     * @returns {Object|null} Le cadeau trouvé ou null
+     */
     function findWish(id, personId = state.personId) {
         return getWishes(personId).find(wish => wish.id === id) || null;
     }
 
-    // Dépendances résolues : les IDs obsolètes/supprimés sont ignorés,
-    // une modale vide n'a aucun sens.
+    /**
+     * @brief Résout les dépendances d'un cadeau
+     * @function getDependencies
+     * @param {Object} wish - Le cadeau dont on veut les dépendances
+     * @returns {Array<Object>} Liste des cadeaux requis (existe toujours)
+     * @description Les IDs obsolètes ou supprimés sont filtrés automatiquement.
+     *              Une modale de dépendance ne s'affiche que si des dépendances réelles existent.
+     */
     function getDependencies(wish) {
         if (!wish || !Array.isArray(wish.requiredWishes)) return [];
         return wish.requiredWishes
@@ -228,11 +392,24 @@
             .filter(Boolean);
     }
 
+    /**
+     * @brief Formate un prix en euros avec 2 décimales
+     * @function formatPrice
+     * @param {number|string} value - Le prix à formater
+     * @returns {string} Prix formaté (ex: "29,99 €")
+     * @description Gère les valeurs non numériques en retournant "0,00 €".
+     */
     function formatPrice(value) {
         const price = Number(value);
         return `${(Number.isFinite(price) ? price : 0).toFixed(2)} €`;
     }
 
+    /**
+     * @brief Génère un libellé de compteur de cadeaux (singulier/pluriel)
+     * @function giftLabel
+     * @param {number} count - Nombre de cadeaux
+     * @returns {string} Libellé formaté (ex: "1 cadeau" ou "3 cadeaux")
+     */
     function giftLabel(count) {
         return `${count} cadeau${count === 1 ? "" : "x"}`;
     }
@@ -241,6 +418,14 @@
        FLOCONS
        ========================================================= */
 
+    /**
+     * @brief Initialise l'animation de flocons de neige
+     * @function initSnowfall
+     * @description Crée dynamiquement 35 éléments `<span class="snowflake">`
+     *              dans le conteneur `#snow`. Chaque flocon a des propriétés
+     *              aléatoires (position, taille, opacité, durée de chute)
+     *              pour un effet naturel.
+     */
     function initSnowfall() {
         const snow = document.getElementById("snow");
         if (!snow) return;
@@ -263,41 +448,151 @@
        ÉLÉMENTS DOM
        ========================================================= */
 
+    /**
+     * @brief Conteneur principal de la grille des souhaits
+     * @const {HTMLElement|null} wishlistContainer
+     */
     const wishlistContainer = document.getElementById("wishlist");
+
+    /**
+     * @brief Conteneur des boutons de filtre par catégorie
+     * @const {HTMLElement|null} categoryFilters
+     */
     const categoryFilters = document.getElementById("category-filters");
+
+    /**
+     * @brief Conteneur des onglets de sélection de personne
+     * @const {HTMLElement|null} personSelector
+     */
     const personSelector = document.getElementById("person-selector");
+
+    /**
+     * @brief Élément affichant le compteur de résultats
+     * @const {HTMLElement|null} resultCounter
+     */
     const resultCounter = document.getElementById("result-counter");
+
+    /**
+     * @brief Bouton d'activation du mode admin
+     * @const {HTMLElement|null} adminToggle
+     */
     const adminToggle = document.getElementById("admin-toggle");
+
+    /**
+     * @brief Bouton d'ajout d'un cadeau (visible en mode admin)
+     * @const {HTMLElement|null} addWishBtn
+     */
     const addWishBtn = document.getElementById("add-wish-btn");
+
+    /**
+     * @brief Sélecteur dropdown de tri
+     * @const {HTMLSelectElement|null} sortSelect
+     */
     const sortSelect = document.getElementById("sort-select");
+
+    /**
+     * @brief Bouton de retour en haut de page
+     * @const {HTMLElement|null} backToTop
+     */
     const backToTop = document.getElementById("back-to-top");
 
     // Modale dépendance
+    /**
+     * @brief Overlay de la modale de dépendance
+     * @const {HTMLElement|null} depModal
+     */
     const depModal = document.getElementById("dependency-modal");
+
+    /**
+     * @brief Bouton fermeture (×) de la modale dépendance
+     * @const {HTMLElement|null} depModalClose
+     */
     const depModalClose = document.getElementById("modal-close");
+
+    /**
+     * @brief Bouton "Retour" de la modale dépendance
+     * @const {HTMLElement|null} depModalCancel
+     */
     const depModalCancel = document.getElementById("modal-cancel");
+
+    /**
+     * @brief Bouton "Voir le produit" de la modale dépendance
+     * @const {HTMLElement|null} depModalConfirm
+     */
     const depModalConfirm = document.getElementById("modal-confirm");
+
+    /**
+     * @brief Liste des dépendances affichées dans la modale
+     * @const {HTMLElement|null} dependencyList
+     */
     const dependencyList = document.getElementById("dependency-list");
 
     // Modale ajout
+    /**
+     * @brief Overlay de la modale d'ajout de cadeau
+     * @const {HTMLElement|null} addModal
+     */
     const addModal = document.getElementById("add-modal");
+
+    /**
+     * @brief Bouton fermeture (×) de la modale d'ajout
+     * @const {HTMLElement|null} addModalClose
+     */
     const addModalClose = document.getElementById("add-modal-close");
+
+    /**
+     * @brief Formulaire d'ajout de cadeau
+     * @const {HTMLFormElement|null} addForm
+     */
     const addForm = document.getElementById("add-form");
+
+    /**
+     * @brief Bouton "Annuler" de la modale d'ajout
+     * @const {HTMLElement|null} addCancel
+     */
     const addCancel = document.getElementById("add-cancel");
 
     /* =========================================================
        MODALES — ouverture/fermeture génériques + accessibilité
        ========================================================= */
 
+    /**
+     * @brief Élément déclencheur de la modale actuellement ouverte
+     * @var {HTMLElement|null} modalTriggerElement
+     * @description Utilisé pour restituer le focus à l'élément d'origine à la fermeture.
+     */
     let modalTriggerElement = null;
+
+    /**
+     * @brief Référence vers la modale actuellement ouverte
+     * @var {HTMLElement|null} openModalElement
+     * @description Utilisée par `trapFocus()` pour maintenir le focus à l'intérieur.
+     */
     let openModalElement = null;
 
+    /**
+     * @brief Retourne tous les éléments focusables dans un conteneur
+     * @function getFocusable
+     * @param {HTMLElement} container - Le conteneur à analyser
+     * @returns {HTMLElement[]} Liste des éléments focusables visibles et non désactivés
+     * @description Sélecteurs : button, a[href], input, select, textarea,
+     *              [tabindex]:not([tabindex="-1"])
+     */
     function getFocusable(container) {
         return Array.from(container.querySelectorAll(
             'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
         )).filter(element => !element.disabled && element.offsetParent !== null);
     }
 
+    /**
+     * @brief Ouvre une modale avec accessibilité complète
+     * @function openModal
+     * @param {HTMLElement} modal - L'élément modale à ouvrir
+     * @param {HTMLElement} [trigger] - L'élément déclencheur (pour retour du focus)
+     * @description Ajoute la classe "active", définit aria-hidden="false",
+     *              désactive le scroll du body, et transfère le focus au premier
+     *              élément focusable de la modale.
+     */
     function openModal(modal, trigger) {
         if (!modal) return;
         modalTriggerElement = trigger || document.activeElement;
@@ -309,6 +604,13 @@
         if (focusable.length) focusable[0].focus();
     }
 
+    /**
+     * @brief Ferme une modale et restaure l'état precedent
+     * @function closeModal
+     * @param {HTMLElement} modal - La modale à fermer
+     * @description Retire la classe "active", restaure aria-hidden, réactive le scroll,
+     *              restitue le focus à l'élément déclencheur, et réinitialise pendingUrl.
+     */
     function closeModal(modal) {
         if (!modal) return;
         modal.classList.remove("active");
@@ -322,7 +624,13 @@
         modalTriggerElement = null;
     }
 
-    // Piège à focus : Tab reste à l'intérieur de la modale ouverte
+    /**
+     * @brief Piège le focus dans la modale ouverte (accessibilité clavier)
+     * @function trapFocus
+     * @param {KeyboardEvent} event - L'événement clavier à traiter
+     * @description Intercepte Tab/Shift+Tab : si on dépasse le dernier élément,
+     *              on revient au premier, et inversement. N'agit que si une modale est ouverte.
+     */
     function trapFocus(event) {
         if (event.key !== "Tab" || !openModalElement) return;
         const focusable = getFocusable(openModalElement);
@@ -342,6 +650,15 @@
        MODALE DÉPENDANCE
        ========================================================= */
 
+    /**
+     * @brief Affiche la modale de dépendance pour un cadeau donné
+     * @function showDependencyModal
+     * @param {Object} wish - Le cadeau dont on veut afficher les dépendances
+     * @param {HTMLElement} trigger - L'élément déclencheur (lien du produit)
+     * @description Remplit la liste des dépendances avec des éléments DOM
+     *              et ouvre la modale. Utilise `textContent` pour les noms
+     *              (protection XSS, les noms peuvent venir du formulaire admin).
+     */
     function showDependencyModal(wish, trigger) {
         if (!depModal || !dependencyList) return;
 
@@ -366,6 +683,7 @@
         openModal(depModal, trigger);
     }
 
+    // Écouteurs d'événements pour la modale dépendance
     if (depModalClose) depModalClose.addEventListener("click", () => closeModal(depModal));
     if (depModalCancel) depModalCancel.addEventListener("click", () => closeModal(depModal));
     if (depModalConfirm) {
@@ -387,6 +705,13 @@
        MODALE AJOUT
        ========================================================= */
 
+    /**
+     * @brief Ouvre la modale d'ajout de cadeau
+     * @function openAddModal
+     * @param {HTMLElement} trigger - L'élément déclencheur
+     * @description Réinitialise la validité du champ prix, ouvre la modale
+     *              et focus le champ nom.
+     */
     function openAddModal(trigger) {
         if (!addModal) return;
         const priceInput = document.getElementById("add-price");
@@ -396,12 +721,18 @@
         if (nameInput) nameInput.focus();
     }
 
+    /**
+     * @brief Ferme la modale d'ajout et réinitialise le formulaire
+     * @function closeAddModal
+     * @description Ferme la modale puis réinitialise tous les champs du formulaire.
+     */
     function closeAddModal() {
         if (!addModal) return;
         closeModal(addModal);
         if (addForm) addForm.reset();
     }
 
+    // Écouteurs d'événements pour la modale ajout
     if (addModalClose) addModalClose.addEventListener("click", closeAddModal);
     if (addCancel) addCancel.addEventListener("click", closeAddModal);
     if (addModal) {
@@ -414,6 +745,14 @@
        SÉLECTEUR DE PERSONNE
        ========================================================= */
 
+    /**
+     * @brief Rend les onglets de sélection de personne
+     * @function renderPersonTabs
+     * @description Génère un bouton `<button class="person-tab">` pour chaque personne
+     *              du tableau `people`. Chaque onglet affiche l'emoji, le nom et un badge
+     *              avec le nombre de souhaits. L'onglet actif reçoit la classe "active"
+     *              et `aria-pressed="true"`.
+     */
     function renderPersonTabs() {
         if (!personSelector) return;
         personSelector.innerHTML = "";
@@ -462,6 +801,14 @@
        FILTRES DE CATÉGORIES
        ========================================================= */
 
+    /**
+     * @brief Rend les boutons de filtre par catégorie
+     * @function renderCategoryFilters
+     * @description Détecte automatiquement les catégories disponibles dans les souhaits
+     *              de la personne courante. Crée un bouton pour "Tous" et un par catégorie.
+     *              Le bouton actif reçoit la classe "active" et `aria-pressed="true"`.
+     *              Si la catégorie mémorisée n'existe plus, réinitialise à "Tous".
+     */
     function renderCategoryFilters() {
         if (!categoryFilters) return;
 
@@ -527,11 +874,24 @@
        SÉLECTEUR DE TRI (dropdown)
        ========================================================= */
 
+    /**
+     * @brief Synchronise le select de tri avec l'état courant
+     * @function updateSortSelect
+     * @description Met à jour la valeur du `<select id="sort-select">`
+     *              pour refléter `state.sort`.
+     */
     function updateSortSelect() {
         if (!sortSelect) return;
         sortSelect.value = state.sort;
     }
 
+    /**
+     * @brief Initialise le sélecteur de tri et attache l'écouteur d'événement
+     * @function initSort
+     * @description Restaure la valeur mémorisée depuis le localStorage,
+     *              puis attache un écouteur "change" qui met à jour `state.sort`,
+     *              sauvegarde les préférences et réaffiche les souhaits.
+     */
     function initSort() {
         if (!sortSelect) return;
 
@@ -547,7 +907,14 @@
         });
     }
 
-    // Tri prix, avec départage alphabétique stable pour les prix égaux
+    /**
+     * @brief Trie la liste des cadeaux selon le critère actif
+     * @function sortWishes
+     * @param {Array<Object>} list - Liste des cadeaux à trier
+     * @returns {Array<Object>} Nouvelle liste triée (ne modifie pas l'original)
+     * @description Pour le tri par prix, un départage alphabétique stable est appliqué
+     *              sur les prix égaux (localeCompare français).
+     */
     function sortWishes(list) {
         const sorted = [...list];
         if (state.sort === "price-asc") {
@@ -568,6 +935,14 @@
        AFFICHAGE DES SOUHAITS
        ========================================================= */
 
+    /**
+     * @brief Crée un élément `<img>` pour un cadeau
+     * @function createImage
+     * @param {Object} wish - Le cadeau dont on veut l'image
+     * @returns {HTMLImageElement} Élément image configuré
+     * @description Configure le lazy loading, l'attribut alt, et un fallback SVG
+     *              en cas d'erreur de chargement (image non disponible).
+     */
     function createImage(wish) {
         const image = document.createElement("img");
         image.src = wish.image || "";
@@ -589,6 +964,19 @@
         return image;
     }
 
+    /**
+     * @brief Crée la carte DOM complète pour un cadeau
+     * @function createWishCard
+     * @param {Object} wish - Le cadeau à afficher
+     * @param {number} index - Index dans la liste (pour l'animation séquentielle)
+     * @returns {HTMLElement} Élément `<article>` contenant la carte
+     * @description La carte contient :
+     *              - Badge catégorie (position absolute, haut-gauche)
+     *              - Image avec wrapper
+     *              - Contenu : titre, prix, lien "Voir le produit"
+     *              - Bouton suppression (uniquement en mode admin)
+     *              Le lien déclenche la modale de dépendance si nécessaire.
+     */
     function createWishCard(wish, index) {
         const card = document.createElement("article");
         card.classList.add("wish-card");
@@ -654,6 +1042,17 @@
         return card;
     }
 
+    /**
+     * @brief Rend la grille complète des souhaits filtrés et triés
+     * @function renderWishes
+     * @description Pipeline de rendu :
+     *              1. Récupère les souhaits via `getWishes()`
+     *              2. Filtre par catégorie (si pas "Tous")
+     *              3. Trie selon `state.sort`
+     *              4. Met à jour le compteur de résultats
+     *              5. Affiche les cartes ou un état vide
+     *              Utilise un `DocumentFragment` pour optimiser les performances DOM.
+     */
     function renderWishes() {
         if (!wishlistContainer) return;
         wishlistContainer.innerHTML = "";
@@ -702,6 +1101,15 @@
        GESTION DES SOUHAITS (ajout / suppression)
        ========================================================= */
 
+    /**
+     * @brief Supprime un cadeau de la liste
+     * @function deleteWish
+     * @param {number} id - ID du cadeau à supprimer
+     * @description Stratégie de suppression :
+     *              1. Si le cadeau est un ajout local → le retirer de `persist.added`
+     *              2. Sinon (cadeau de la base) → ajouter son ID à `persist.deleted`
+     *              Puis sauvegarde et rafraîchit l'interface.
+     */
     function deleteWish(id) {
         const exists = getWishes().some(wish => wish.id === id);
         if (!exists) return;
@@ -724,6 +1132,20 @@
         refresh();
     }
 
+    /**
+     * @brief Ajoute un nouveau cadeau à la liste de la personne courante
+     * @function addWish
+     * @param {Object} data - Données du formulaire d'ajout
+     * @param {string} data.name - Nom du cadeau
+     * @param {string} data.category - Catégorie du cadeau
+     * @param {string} data.price - Prix du cadeau (string, converti en number)
+     * @param {string} data.image - URL de l'image (optionnel)
+     * @param {string} data.url - Lien vers le produit
+     * @returns {boolean} true si l'ajout a réussi, false sinon
+     * @description Valide les données (nom, URL, prix ≥ 0), génère un ID unique
+     *              via `nextWishId()`, ajoute à `persist.added[personId]`,
+     *              sauvegarde et ferme la modale.
+     */
     function addWish(data) {
         const price = Number(data.price);
         if (!data.name || !data.url || !Number.isFinite(price) || price < 0) {
@@ -749,6 +1171,7 @@
         return true;
     }
 
+    // Écouteur de soumission du formulaire d'ajout
     if (addForm) {
         const priceInput = document.getElementById("add-price");
         if (priceInput) {
@@ -786,6 +1209,7 @@
        MODE ADMIN
        ========================================================= */
 
+    // Écouteur du bouton de basculement mode admin
     if (adminToggle) {
         adminToggle.setAttribute("aria-pressed", "false");
         adminToggle.addEventListener("click", function () {
@@ -797,6 +1221,7 @@
         });
     }
 
+    // Écouteur du bouton d'ajout (visible en mode admin)
     if (addWishBtn) {
         addWishBtn.addEventListener("click", function () {
             openAddModal(addWishBtn);
@@ -807,6 +1232,7 @@
        BOUTON RETOUR EN HAUT
        ========================================================= */
 
+    // Écouteurs pour le bouton "retour en haut"
     if (backToTop) {
         window.addEventListener("scroll", function () {
             backToTop.classList.toggle("visible", window.scrollY > 400);
@@ -821,6 +1247,12 @@
        CLAVIER — Échap ferme la modale active, Tab y reste piégé
        ========================================================= */
 
+    /**
+     * @brief Gestionnaire d'événements clavier globaux
+     * @description Gère :
+     *              - Touche Échap : ferme la modale d'ajout ou de dépendance
+     *              - Tab : piège le focus dans la modale ouverte (`trapFocus`)
+     */
     document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
             if (addModal && addModal.classList.contains("active")) {
@@ -837,6 +1269,15 @@
        RENDU GLOBAL
        ========================================================= */
 
+    /**
+     * @brief Rafraîchit complètement l'interface utilisateur
+     * @function refresh
+     * @description Appelle les trois fonctions de rendu principales :
+     *              1. `renderPersonTabs()` — Onglets de personne
+     *              2. `renderCategoryFilters()` — Boutons de catégorie
+     *              3. `renderWishes()` — Grille des souhaits
+     *              C'est le point d'entrée unique après toute modification d'état.
+     */
     function refresh() {
         renderPersonTabs();
         renderCategoryFilters();
@@ -847,9 +1288,10 @@
        LANCEMENT
        ========================================================= */
 
-    initSnowfall();
-    initIdCounter();
-    initSort();
+    // Initialisation au chargement de la page
+    initSnowfall();    // Animation flocons
+    initIdCounter();   // Compteur d'IDs
+    initSort();        // Sélecteur de tri
 
     // refresh() valide aussi la catégorie mémorisée avant la sauvegarde
     refresh();
@@ -862,6 +1304,7 @@
     storage.remove(STORAGE_KEYS.legacySort);
     storage.remove(STORAGE_KEYS.legacyCategory);
 
+    // Statistiques de chargement
     const totalWishes = people.reduce(
         (sum, person) => sum + getWishes(person.id).length,
         0

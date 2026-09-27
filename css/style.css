@@ -1,3 +1,22 @@
+/**
+ * @file style.css
+ * @brief Styles principaux de l'application "Ma Liste de Cadeaux"
+ * @author Kevin Leca
+ * @version 2.0
+ * @date 2026
+ *
+ * @brief Design system complet pour l'application de liste de souhaits.
+ *
+ * Architecture CSS :
+ * - Variables CSS (`:root`) pour le thème et la palette
+ * - Reset CSS minimaliste
+ * - Système d'accent dynamique par personne (vert = Kévin, violet = Lucie)
+ * - Grille responsive avec cartes glassmorphism
+ * - Modales accessibles avec animations
+ * - Accessibilité : prefers-reduced-motion, focus-visible
+ * - Responsive : mobile-first, breakpoints 380/600/720/1024px
+ */
+
 /* =========================================================
    DESIGN SYSTEM — Variables
    ========================================================= */
@@ -86,6 +105,11 @@
    ACCENT PAR PERSONNE (Kévin = vert, Lucie = violet)
    ========================================================= */
 
+/**
+ * @brief Accent dynamique pour Lucie
+ * @description Utilise `:has()` pour détecter l'onglet actif et changer
+ *              la palette d'accent. Vert par défaut (Kévin), violet pour Lucie.
+ */
 body:has(.person-tab.active[data-person="lucie"]) {
     --accent: var(--purple);
     --accent-dark: var(--purple-dark);
@@ -97,6 +121,11 @@ body:has(.person-tab.active[data-person="lucie"]) {
    RESET
    ========================================================= */
 
+/**
+ * @brief Reset CSS minimaliste
+ * @description Box-sizing border-box sur tous les éléments, marges/paddings zéro,
+ *              images responsive, formulaire inherit font.
+ */
 *,
 *::before,
 *::after {
@@ -121,7 +150,11 @@ select {
     color: inherit;
 }
 
-/* Texte uniquement pour lecteurs d'écran */
+/**
+ * @brief Classe d'aide pour lecteurs d'écran
+ * @description Masque visuellement un élément tout en le rendant accessible
+ *              aux technologies d'assistance (ARIA, lecteurs d'écran).
+ */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -134,7 +167,11 @@ select {
     border: 0;
 }
 
-/* Focus visible cohérent sur toute l'app */
+/**
+ * @brief Style de focus visible cohérent sur toute l'app
+ * @description Utilise `:focus-visible` pour afficher un outline uniquement
+ *              sur la navigation clavier (pas au clic souris).
+ */
 :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
@@ -150,6 +187,11 @@ select {
    BODY & FOND
    ========================================================= */
 
+/**
+ * @brief Style principal du body
+ * @description Fond photo du chalet avec voile semi-transparent (overlay),
+ *              typographie Inter, couleurs du design system.
+ */
 body {
     min-height: 100vh;
     color: var(--text);
@@ -172,7 +214,11 @@ body {
     background-repeat: no-repeat;
 }
 
-/* Halo décoratif derrière toute la page */
+/**
+ * @brief Halo décoratif derrière toute la page
+ * @description Pseudo-élément `::before` fixe, avec trois radials gradient
+ *              pour un éclairage doux et décoratif.
+ */
 body::before {
     content: "";
     position: fixed;
@@ -186,7 +232,10 @@ body::before {
     transition: background var(--duration-slow) var(--ease);
 }
 
-/* Barre de défilement discrète */
+/**
+ * @brief Barre de défilement discrète (Webkit)
+ * @description Style personnalisé pour la scrollbar sur les navigateurs Webkit.
+ */
 ::-webkit-scrollbar {
     width: 10px;
 }
@@ -212,6 +261,11 @@ body::before {
    FLOCONS
    ========================================================= */
 
+/**
+ * @brief Conteneur des flocons de neige animés
+ * @description Conteneur fixe, plein écran, non cliquable (pointer-events: none).
+ *              Les flocons sont générés dynamiquement par JavaScript.
+ */
 #snow {
     position: fixed;
     inset: 0;
@@ -220,6 +274,11 @@ body::before {
     z-index: 0;
 }
 
+/**
+ * @brief Style d'un flocon de neige
+ * @description Chaque flocon est un `<span>` positionné aléatoirement,
+ *              avec une animation `snowfall` infinie.
+ */
 .snowflake {
     position: absolute;
     top: -30px;
@@ -232,6 +291,11 @@ body::before {
     will-change: transform;
 }
 
+/**
+ * @brief Animation de chute des flocons
+ * @description Mouvement de translation Y de -30px à 110vh,
+ *              avec oscillation X et rotation pour un effet naturel.
+ */
 @keyframes snowfall {
     0% {
         transform: translateY(-30px) translateX(0) rotate(0deg);
@@ -249,6 +313,11 @@ body::before {
    COUCHE DE CONTENU
    ========================================================= */
 
+/**
+ * @brief Couche de z-index pour le contenu principal
+ * @description Assure que le contenu (header, main, footer, filtres)
+ *              passe au-dessus du halo décoratif et des flocons.
+ */
 header,
 main,
 footer,
@@ -264,6 +333,11 @@ footer,
    HEADER
    ========================================================= */
 
+/**
+ * @brief En-tête de la page avec titre et sous-titre
+ * @description Titre principal en typographie Fraunces (serif chaleureux),
+ *              centré, responsive (clamp entre 2.1rem et 3.4rem).
+ */
 header {
     width: min(920px, calc(100% - 2 * var(--sp-6)));
     margin: 0 auto;
@@ -284,12 +358,22 @@ header h1 {
     text-wrap: balance;
 }
 
+/**
+ * @brief Emoji du titre avec animation de oscillation
+ * @description Animation `gift-wiggle` qui déclenche un mouvement
+ *              de rotation léger toutes les 5 secondes.
+ */
 header h1 .title-emoji {
     display: inline-block;
     transform-origin: 60% 70%;
     animation: gift-wiggle 5s var(--ease) infinite;
 }
 
+/**
+ * @brief Animation d'oscillation de l'emoji cadeau
+ * @description Rotation subtile de ±8° avec léger scale pour
+ *              un effet de mouvement naturel et joyeux.
+ */
 @keyframes gift-wiggle {
     0%, 88%, 100% { transform: rotate(0deg); }
     91% { transform: rotate(-8deg) scale(1.05); }
@@ -297,6 +381,11 @@ header h1 .title-emoji {
     97% { transform: rotate(-3deg); }
 }
 
+/**
+ * @brief Sous-titre de l'en-tête
+ * @description Texte descriptif plus discret, responsive,
+ *              avec `text-wrap: pretty` pour une meilleure césure.
+ */
 header .subtitle {
     color: var(--text-on-image-soft);
     font-size: clamp(0.98rem, 2vw, 1.1rem);
@@ -312,6 +401,10 @@ header .subtitle {
    SÉLECTEUR DE PERSONNE
    ========================================================= */
 
+/**
+ * @brief Conteneur des onglets de sélection de personne
+ * @description Flexbox centré, max-width 480px, gap entre les onglets.
+ */
 #person-selector {
     width: min(480px, calc(100% - 2 * var(--sp-6)));
     margin: var(--sp-6) auto var(--sp-3);
@@ -320,6 +413,11 @@ header .subtitle {
     justify-content: center;
 }
 
+/**
+ * @brief Style d'un onglet de personne
+ * @description Bouton pilule avec glassmorphism (backdrop-filter),
+ *              transition douce sur background, border, shadow, transform.
+ */
 .person-tab {
     flex: 1;
     max-width: 210px;
@@ -358,6 +456,10 @@ header .subtitle {
     transform: translateY(0) scale(0.98);
 }
 
+/**
+ * @brief Style de l'onglet de personne actif
+ * @description Fond coloré (accent), texte blanc, ombre colorée.
+ */
 .person-tab.active {
     background: var(--accent);
     color: #fff;
@@ -398,6 +500,10 @@ header .subtitle {
    CATÉGORIES & TRI
    ========================================================= */
 
+/**
+ * @brief Conteneur des boutons de filtre par catégorie
+ * @description Flexbox centré avec wrapping, gap serré.
+ */
 #category-filters {
     width: min(920px, calc(100% - 2 * var(--sp-6)));
     margin: 0 auto var(--sp-6);
@@ -408,7 +514,10 @@ header .subtitle {
     gap: var(--sp-2);
 }
 
-/* Sélecteur de tri — <select> déguisé en bouton pilule (glassmorphism) */
+/**
+ * @brief Conteneur du sélecteur de tri (dropdown)
+ * @description Wrapper relatif pour positionner le chevron personnalisé.
+ */
 .sort-select-wrap {
     position: relative;
     display: inline-flex;
@@ -419,7 +528,10 @@ header .subtitle {
     transition: color var(--duration) var(--ease);
 }
 
-/* Chevron personnalisé (remplace la flèche native) */
+/**
+ * @brief Chevron personnalisé pour le dropdown de tri
+ * @description Pseudo-élément `::after` avec un triangle vers le bas.
+ */
 .sort-select-wrap::after {
     content: "▾";
     position: absolute;
@@ -429,8 +541,10 @@ header .subtitle {
     pointer-events: none;
 }
 
-/* Le select reprend le style pilule + verre des .category-button
-   (spécificité renforcée pour dominer l'ordre des règles .category-button) */
+/**
+ * @brief Style du sélecteur de tri (déguisé en bouton pilule)
+ * @description Le select reprend le style glassmorphism des boutons catégorie.
+ */
 .category-button.sort-select {
     appearance: none;
     -webkit-appearance: none;
@@ -445,13 +559,20 @@ header .subtitle {
     border-color: rgba(168, 124, 79, 0.5);
 }
 
-/* Menu natif : toujours en clair pour la lisibilité */
+/**
+ * @brief Options du menu natif du select de tri
+ * @description Fond blanc pour la lisibilité du menu natif.
+ */
 .sort-select option {
     background: #fff;
     color: var(--text);
 }
 
-/* Boutons catégorie */
+/**
+ * @brief Style des boutons de catégorie
+ * @description Boutons pilule avec glassmorphism, transition douce,
+ *              état actif avec accent coloré.
+ */
 .category-button {
     min-height: 38px;
     padding: var(--sp-2) 18px;
@@ -486,6 +607,10 @@ header .subtitle {
     transform: translateY(0) scale(0.97);
 }
 
+/**
+ * @brief Style du bouton de catégorie actif
+ * @description Fond accent coloré, texte blanc, ombre colorée.
+ */
 .category-button.active {
     background: var(--accent);
     color: #fff;
@@ -498,6 +623,10 @@ header .subtitle {
     border-color: var(--accent-dark);
 }
 
+/**
+ * @brief Icône emoji des boutons catégorie
+ * @description Transition de scale et rotation au hover.
+ */
 .category-icon {
     margin-right: 5px;
     display: inline-block;
@@ -513,6 +642,11 @@ header .subtitle {
    COMPTEUR DE RÉSULTATS
    ========================================================= */
 
+/**
+ * @brief Compteur de résultats affiché sous les filtres
+ * @description Texte uppercase discret, centré, avec ombre de texte
+ *              pour la lisibilité sur le fond photo.
+ */
 #result-counter {
     width: min(1440px, calc(100% - 2 * var(--sp-6)));
     margin: 0 auto;
@@ -531,6 +665,11 @@ header .subtitle {
    GRILLE DES SOUHAITS
    ========================================================= */
 
+/**
+ * @brief Grille CSS responsive des cartes de souhaits
+ * @description Utilise `auto-fill` avec `minmax(285px, 1fr)` pour
+ *              un nombre de colonnes adaptatif. Gap responsive via clamp.
+ */
 #wishlist {
     width: min(1440px, calc(100% - 2 * var(--sp-6)));
     margin: 0 auto;
@@ -545,6 +684,12 @@ header .subtitle {
    CARTE
    ========================================================= */
 
+/**
+ * @brief Carte individuelle d'un cadeau
+ * @description Carte avec glassmorphism, ombre douce, animation fadeInUp,
+ *              hover avec lift (translateY + shadow). Overflow hidden
+ *              pour respecter les bordures arrondies.
+ */
 .wish-card {
     position: relative;
     display: flex;
@@ -568,7 +713,11 @@ header .subtitle {
     border-color: rgba(var(--accent-rgb), 0.25);
 }
 
-/* Badge catégorie */
+/**
+ * @brief Badge de catégorie sur la carte
+ * @description Positionné en haut à gauche, pillule glassmorphism,
+ *              texte uppercase gras.
+ */
 .wish-card .category-badge {
     position: absolute;
     top: var(--sp-3);
@@ -598,6 +747,11 @@ header .subtitle {
    IMAGE
    ========================================================= */
 
+/**
+ * @brief Wrapper de l'image du cadeau
+ * @description Overflow hidden pour le zoom au hover,
+ *              ratio 4/3 maintenu par `aspect-ratio`.
+ */
 .wish-card .image-wrapper {
     overflow: hidden;
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
@@ -613,6 +767,9 @@ header .subtitle {
     transition: transform 0.55s var(--ease);
 }
 
+/**
+ * @brief Effet de zoom au survol de l'image
+ */
 .wish-card:hover .image-wrapper img {
     transform: scale(1.05);
 }
@@ -622,6 +779,10 @@ header .subtitle {
    CONTENU DE LA CARTE
    ========================================================= */
 
+/**
+ * @brief Zone de contenu textuel de la carte (titre, prix, lien)
+ * @description Flex column avec gap, padding uniforme.
+ */
 .wish-content {
     display: flex;
     flex-direction: column;
@@ -653,6 +814,11 @@ header .subtitle {
    PRIX
    ========================================================= */
 
+/**
+ * @brief Affichage du prix du cadeau
+ * @description Typographie Fraunces, couleur accent, tabular-nums
+ *              pour l'alignement des chiffres.
+ */
 .wish-price {
     color: var(--accent);
     font-family: var(--font-display);
@@ -670,6 +836,11 @@ header .subtitle {
    BOUTON "VOIR LE PRODUIT"
    ========================================================= */
 
+/**
+ * @brief Bouton lien "Voir le produit"
+ * @description Pleine largeur, min-height 44px (cible tactile),
+ *              fond accent, transition douce sur hover/active.
+ */
 .wish-content a {
     display: flex;
     align-items: center;
@@ -711,6 +882,11 @@ header .subtitle {
    BOUTON SUPPRIMER (mode admin)
    ========================================================= */
 
+/**
+ * @brief Bouton de suppression de cadeau (mode admin uniquement)
+ * @description Positionné en haut à droite, cercle rouge,
+ *              affiché uniquement quand `body.admin-mode` est actif.
+ */
 .wish-card .btn-delete {
     position: absolute;
     top: var(--sp-3);
@@ -747,6 +923,9 @@ header .subtitle {
     transform: scale(0.95);
 }
 
+/**
+ * @brief Affichage du bouton supprimer en mode admin
+ */
 body.admin-mode .wish-card .btn-delete {
     display: flex;
     animation: pop-in 0.3s var(--ease-spring) both;
@@ -757,6 +936,11 @@ body.admin-mode .wish-card .btn-delete {
    POP-UP — Fond
    ========================================================= */
 
+/**
+ * @brief Overlay (fond sombre) des modales
+ * @description Fixe, plein écran, centré, avec backdrop-filter blur.
+ *              Visible uniquement quand la classe "active" est ajoutée.
+ */
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -785,6 +969,11 @@ body.admin-mode .wish-card .btn-delete {
    POP-UP
    ========================================================= */
 
+/**
+ * @brief Conteneur principal de la modale
+ * @description Carte blanche centrée, max-height 88vh avec scroll,
+ *              animation de scale + translate au display.
+ */
 .modal {
     position: relative;
     width: min(480px, 100%);
@@ -814,6 +1003,11 @@ body.admin-mode .wish-card .btn-delete {
    POP-UP — Icône
    ========================================================= */
 
+/**
+ * @brief Icône circulaire en haut de la modale
+ * @description Cercle avec fond accent léger, emoji centré,
+ *              animation pop-in séquentielle.
+ */
 .modal-icon {
     display: flex;
     align-items: center;
@@ -833,6 +1027,10 @@ body.admin-mode .wish-card .btn-delete {
    POP-UP — Titre & texte
    ========================================================= */
 
+/**
+ * @brief Titre de la modale
+ * @description Typographie Fraunces, taille grande, centré.
+ */
 .modal h2 {
     color: var(--text);
     font-family: var(--font-display);
@@ -843,6 +1041,10 @@ body.admin-mode .wish-card .btn-delete {
     margin-bottom: var(--sp-2);
 }
 
+/**
+ * @brief Texte introductif de la modale
+ * @description Couleur secondaire, line-height généreux, text-wrap pretty.
+ */
 .modal-introduction {
     color: var(--text-secondary);
     line-height: 1.65;
@@ -856,6 +1058,10 @@ body.admin-mode .wish-card .btn-delete {
    POP-UP — Liste des dépendances
    ========================================================= */
 
+/**
+ * @brief Liste des dépendances affichées dans la modale
+ * @description Flex column avec gap, chaque item est une carte secondaire.
+ */
 #dependency-list {
     display: flex;
     flex-direction: column;
@@ -863,6 +1069,10 @@ body.admin-mode .wish-card .btn-delete {
     margin-bottom: var(--sp-6);
 }
 
+/**
+ * @brief Item de dépendance dans la liste
+ * @description Carte secondaire avec emoji + nom, animation séquentielle.
+ */
 .dependency-item {
     display: flex;
     align-items: center;
@@ -892,6 +1102,10 @@ body.admin-mode .wish-card .btn-delete {
    POP-UP — Bouton fermer
    ========================================================= */
 
+/**
+ * @brief Bouton de fermeture (×) en haut à droite de la modale
+ * @description Cercle transparent, rotation 90° au hover, couleur rouge.
+ */
 .modal-close {
     position: absolute;
     top: var(--sp-3);
@@ -925,12 +1139,20 @@ body.admin-mode .wish-card .btn-delete {
    POP-UP — Boutons d'action
    ========================================================= */
 
+/**
+ * @brief Conteneur des boutons d'action de la modale
+ * @description Flex centré avec gap.
+ */
 .modal-actions {
     display: flex;
     gap: var(--sp-3);
     justify-content: center;
 }
 
+/**
+ * @brief Style de base des boutons d'action modale
+ * @description Min-height 46px, transition douce, hover avec lift.
+ */
 .modal-button {
     flex: 1;
     min-height: 46px;
@@ -956,7 +1178,10 @@ body.admin-mode .wish-card .btn-delete {
     transform: translateY(0) scale(0.98);
 }
 
-/* Retour */
+/**
+ * @brief Bouton secondaire "Retour" de la modale
+ * @description Fond gris clair, bordure discrète.
+ */
 .modal-button-secondary {
     background: var(--bg-secondary);
     color: var(--text);
@@ -969,7 +1194,10 @@ body.admin-mode .wish-card .btn-delete {
     box-shadow: var(--shadow-sm);
 }
 
-/* Produit */
+/**
+ * @brief Bouton primaire "Voir le produit" de la modale
+ * @description Fond accent, texte blanc, ombre colorée.
+ */
 .modal-button-primary {
     background: var(--accent);
     color: #fff;
@@ -988,6 +1216,11 @@ body.admin-mode .wish-card .btn-delete {
    MODAL AJOUT — Formulaire
    ========================================================= */
 
+/**
+ * @brief Style de la modale d'ajout de cadeau
+ * @description Le formulaire est aligné à gauche, mais l'icône et le titre
+ *              restent centrés.
+ */
 #add-modal .modal {
     text-align: left;
 }
@@ -997,6 +1230,10 @@ body.admin-mode .wish-card .btn-delete {
     text-align: center;
 }
 
+/**
+ * @brief Labels du formulaire d'ajout
+ * @description Texte secondaire, gras, uppercase léger, marge supérieure.
+ */
 #add-modal label {
     display: block;
     font-size: 0.82rem;
@@ -1011,11 +1248,20 @@ body.admin-mode .wish-card .btn-delete {
     margin-top: 0;
 }
 
+/**
+ * @brief Label "optionnel" dans le formulaire
+ * @description Texte plus discret pour les champs optionnels.
+ */
 #add-modal .label-optional {
     font-weight: 450;
     color: var(--text-muted);
 }
 
+/**
+ * @brief Champs de saisie et select du formulaire d'ajout
+ * @description Pleine largeur, min-height 44px, fond secondaire,
+ *              border-radius, transition sur focus.
+ */
 #add-modal input,
 #add-modal select {
     width: 100%;
@@ -1042,6 +1288,10 @@ body.admin-mode .wish-card .btn-delete {
     border-color: var(--border-strong);
 }
 
+/**
+ * @brief État focus des champs du formulaire d'ajout
+ * @description Bordure accent + ring coloré pour la lisibilité.
+ */
 #add-modal input:focus,
 #add-modal select:focus {
     outline: none;
@@ -1050,6 +1300,10 @@ body.admin-mode .wish-card .btn-delete {
     background: #fff;
 }
 
+/**
+ * @brief Conteneur des boutons du formulaire d'ajout
+ * @description Flex avec gap, marge supérieure.
+ */
 #add-modal .form-actions {
     display: flex;
     gap: var(--sp-3);
@@ -1065,6 +1319,11 @@ body.admin-mode .wish-card .btn-delete {
    FOOTER
    ========================================================= */
 
+/**
+ * @brief Pied de page de l'application
+ * @description Texte centré, couleur claire sur fond sombre,
+ *              avec séparateur décoratif (gradient line).
+ */
 footer {
     text-align: center;
     padding: var(--sp-10) var(--sp-5) calc(var(--sp-16) + env(safe-area-inset-bottom, 0px));
@@ -1085,6 +1344,9 @@ footer::before {
     background: linear-gradient(90deg, transparent, rgba(255, 250, 241, 0.3), transparent);
 }
 
+/**
+ * @brief Animation du cœur du footer au hover
+ */
 .footer-heart span[aria-hidden="true"] {
     display: inline-block;
     transition: transform var(--duration) var(--ease-spring);
@@ -1099,7 +1361,11 @@ footer:hover .footer-heart span[aria-hidden="true"] {
    BOUTONS FLOTTANTS
    ========================================================= */
 
-/* Retour en haut */
+/**
+ * @brief Bouton flottant "Retour en haut"
+ * @description Fixe en bas à droite, cercle accent, visible uniquement
+ *              après 400px de scroll (classe "active" ajoutée par JS).
+ */
 #back-to-top {
     position: fixed;
     right: calc(var(--sp-6) + env(safe-area-inset-right, 0px));
@@ -1146,7 +1412,11 @@ footer:hover .footer-heart span[aria-hidden="true"] {
     transform: translateY(0) scale(0.95);
 }
 
-/* Ajouter (admin) */
+/**
+ * @brief Bouton flottant "Ajouter un cadeau" (admin)
+ * @description Fixe en bas à droite (à gauche du retour en haut),
+ *              cercle violet, affiché uniquement en mode admin.
+ */
 #add-wish-btn {
     display: none;
     position: fixed;
@@ -1187,7 +1457,11 @@ body.admin-mode #add-wish-btn {
     transform: translateY(0) scale(0.95);
 }
 
-/* Mode admin */
+/**
+ * @brief Bouton flottant "Mode admin"
+ * @description Fixe en bas à gauche, pillule glassmorphism,
+ *              passe en rouge quand le mode admin est actif.
+ */
 #admin-toggle {
     position: fixed;
     left: calc(var(--sp-6) + env(safe-area-inset-left, 0px));
@@ -1238,6 +1512,11 @@ body.admin-mode #admin-toggle {
    BADGE NOMBRE D'ÉLÉMENTS
    ========================================================= */
 
+/**
+ * @brief Badge compteur sur les onglets de personne
+ * @description Cercle semi-transparent, texte gras, tabular-nums
+ *              pour l'alignement des chiffres.
+ */
 .person-tab .badge {
     display: inline-flex;
     align-items: center;
@@ -1263,6 +1542,10 @@ body.admin-mode #admin-toggle {
    ANIMATIONS
    ========================================================= */
 
+/**
+ * @brief Animation fadeInUp pour l'apparition des cartes
+ * @description Translation Y de 18px vers le haut + fade in.
+ */
 @keyframes fadeInUp {
     from {
         opacity: 0;
@@ -1274,6 +1557,10 @@ body.admin-mode #admin-toggle {
     }
 }
 
+/**
+ * @brief Animation fade-slide-in pour les items de dépendance
+ * @description Translation X de -8px vers la droite + fade in.
+ */
 @keyframes fade-slide-in {
     from {
         opacity: 0;
@@ -1285,6 +1572,10 @@ body.admin-mode #admin-toggle {
     }
 }
 
+/**
+ * @brief Animation pop-in pour les éléments flottants
+ * @description Scale de 0.6 à 1.06 puis 1, avec fade in.
+ */
 @keyframes pop-in {
     0% {
         opacity: 0;
@@ -1322,6 +1613,11 @@ body.admin-mode #admin-toggle {
    EMPTY STATE
    ========================================================= */
 
+/**
+ * @brief État vide (aucun cadeau dans la catégorie)
+ * @description Message centré sur toute la largeur de la grille,
+ *              icône mailbox, texte en Fraunces.
+ */
 .empty-state {
     grid-column: 1 / -1;
     text-align: center;
@@ -1348,12 +1644,20 @@ body.admin-mode #admin-toggle {
    RESPONSIVE
    ========================================================= */
 
+/**
+ * @brief Breakpoint tablette (≤1024px)
+ * @description Réduit la taille minimale des colonnes de la grille.
+ */
 @media (max-width: 1024px) {
     #wishlist {
         grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
     }
 }
 
+/**
+ * @brief Breakpoint mobile (≤720px)
+ * @description Filtres en ligne horizontale défilante, padding réduit.
+ */
 @media (max-width: 720px) {
     header {
         padding-top: var(--sp-10);
@@ -1386,6 +1690,11 @@ body.admin-mode #admin-toggle {
     }
 }
 
+/**
+ * @brief Breakpoint mobile étroit (≤600px)
+ * @description Grille en colonne unique, modale en pleine largeur,
+ *              boutons flottants adaptés.
+ */
 @media (max-width: 600px) {
     header {
         width: calc(100% - 2 * var(--sp-4));
@@ -1479,6 +1788,10 @@ body.admin-mode #admin-toggle {
     }
 }
 
+/**
+ * @brief Breakpoint très petit écran (≤380px)
+ * @description Réduction supplémentaire de la taille des titres et onglets.
+ */
 @media (max-width: 380px) {
     header h1 {
         font-size: 1.55rem;
@@ -1494,6 +1807,12 @@ body.admin-mode #admin-toggle {
    ACCESSIBILITÉ — mouvement réduit
    ========================================================= */
 
+/**
+ * @brief Préférence utilisateur : mouvement réduit
+ * @description Désactive toutes les animations et transitions pour
+ *              les utilisateurs qui ont activé "reduced motion" dans
+ *              les préférences système. Masque les flocons.
+ */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
