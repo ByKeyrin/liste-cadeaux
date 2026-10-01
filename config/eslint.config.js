@@ -16,6 +16,7 @@ export default [
                 confirm: "readonly",
                 alert: "readonly",
                 setTimeout: "readonly",
+                requestAnimationFrame: "readonly",
                 setInterval: "readonly",
                 clearTimeout: "readonly",
                 clearInterval: "readonly",

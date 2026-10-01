@@ -601,7 +601,12 @@
         document.body.style.overflow = "hidden";
         openModalElement = modal;
         const focusable = getFocusable(modal);
-        if (focusable.length) focusable[0].focus();
+        if (focusable.length) {
+            // Attendre la fin de la transition CSS avant de focus
+            requestAnimationFrame(() => {
+                setTimeout(() => focusable[0].focus(), 50);
+            });
+        }
     }
 
     /**
@@ -718,7 +723,12 @@
         if (priceInput) priceInput.setCustomValidity("");
         openModal(addModal, trigger);
         const nameInput = document.getElementById("add-name");
-        if (nameInput) nameInput.focus();
+        if (nameInput) {
+            // Attendre la fin de la transition CSS (visibility) avant de focus
+            requestAnimationFrame(() => {
+                setTimeout(() => nameInput.focus(), 50);
+            });
+        }
     }
 
     /**

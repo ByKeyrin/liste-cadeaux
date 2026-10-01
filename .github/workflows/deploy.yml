@@ -4,13 +4,11 @@ on:
   push:
     branches: [main]
 
-# Permettre au workflow de push sur gh-pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Empêcher les déploiements concurrents
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -35,8 +33,24 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Install Playwright
+      - name: Get Playwright version
+        id: playwright-version
+        run: echo "version=$(npx playwright --version | tr -d 'Playwright ')" >> $GITHUB_OUTPUT
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install chromium --with-deps
+
+      - name: Install Playwright system deps
+        if: steps.playwright-cache.outputs.cache-hit == 'true'
+        run: npx playwright install-deps chromium
 
       - name: Tests
         run: npx playwright test --config config/playwright.config.js --project=chromium
@@ -44,7 +58,7 @@ jobs:
   deploy:
     name: 🌐 Déploiement GitHub Pages
     needs: test
-    if: always() # Déploie même si les tests échouent
+    if: always()
     runs-on: ubuntu-latest
     environment:
       name: github-pages
