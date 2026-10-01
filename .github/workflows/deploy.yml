@@ -44,6 +44,7 @@ jobs:
   deploy:
     name: 🌐 Déploiement GitHub Pages
     needs: test
+    if: always() # Déploie même si les tests échouent
     runs-on: ubuntu-latest
     environment:
       name: github-pages
