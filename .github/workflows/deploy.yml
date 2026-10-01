@@ -1,0 +1,65 @@
+name: 🚀 Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+
+# Permettre au workflow de push sur gh-pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Empêcher les déploiements concurrents
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    name: ✅ Vérifications avant déploiement
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Install Playwright
+        run: npx playwright install chromium --with-deps
+
+      - name: Tests
+        run: npx playwright test --config config/playwright.config.js --project=chromium
+
+  deploy:
+    name: 🌐 Déploiement GitHub Pages
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site (src/)
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: src/
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
