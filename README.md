@@ -184,3 +184,4 @@ MIT — Voir [LICENSE](LICENSE)
 ---
 
 *Fait avec ❤️ pour Kévin & Lucie*
+# CI trigger
