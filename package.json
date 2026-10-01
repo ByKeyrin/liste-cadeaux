@@ -5,8 +5,8 @@
   "type": "module",
   "main": "index.html",
   "scripts": {
-    "start": "npx serve .",
-    "lint": "npx eslint js/",
+    "start": "npx serve src",
+    "lint": "npx eslint src/js/",
     "build": "echo 'Pas de build nécessaire (vanilla JS)'",
     "test": "npx playwright test",
     "test:ui": "npx playwright test --ui",
