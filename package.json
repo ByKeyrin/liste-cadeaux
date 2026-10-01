@@ -6,11 +6,11 @@
   "main": "index.html",
   "scripts": {
     "start": "npx serve src",
-    "lint": "npx eslint src/js/",
+    "lint": "npx eslint --config config/eslint.config.js src/js/",
     "build": "echo 'Pas de build nécessaire (vanilla JS)'",
-    "test": "npx playwright test",
-    "test:ui": "npx playwright test --ui",
-    "test:headed": "npx playwright test --headed",
+    "test": "npx playwright test --config config/playwright.config.js",
+    "test:ui": "npx playwright test --config config/playwright.config.js --ui",
+    "test:headed": "npx playwright test --config config/playwright.config.js --headed",
     "test:report": "npx playwright show-report"
   },
   "keywords": [
