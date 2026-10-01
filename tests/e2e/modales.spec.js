@@ -3,57 +3,55 @@
  * @brief Tests E2E — Modales d'ajout et de dépendance (liste-cadeaux)
  * @author TEMPER — Agent QA
  *
- * @description Vérifie l'ouverture/fermeture de la modale d'ajout
- *              (bouton annuler, clic sur l'arrière-plan), le piège de focus
- *              (accessibilité clavier) et, en bonus, la modale de dépendance.
+ * @description Vérifie l'ouverture et la fermeture de la modale d'ajout
+ *              (bouton Annuler, touche Échap, clic sur l'arrière-plan),
+ *              le piège de focus Tab/Shift+Tab (accessibilité clavier),
+ *              la modale de dépendance (ouverture, contenu, fermeture)
+ *              et la restitution du focus au déclencheur à la fermeture.
  *
  * Comportements de l'appex (src/js/app.js) :
- *   - Le bouton d'ajout "#add-wish-btn" n'est visible qu'en mode admin
- *     (classe "admin-mode" sur <body>, activée via "#admin-toggle")
- *   - Ouverture : classe "active" sur l'overlay, aria-hidden="false".
- *     L'overlay a une transition CSS de visibilité de 0.25s (--duration).
+ *   - Le bouton d'ajout n'est visible qu'en mode admin (classe "admin-mode"
+ *     sur <body>, activée via le bouton "Admin" → "Quitter")
+ *   - Ouverture : classe "active" sur l'overlay, aria-hidden="false",
+ *     la modale devient visible puis le focus DOIT atterrir sur le champ
+ *     "Nom du cadeau" (openAddModal le déclare explicitement)
  *   - Fermeture : classe "active" retirée, aria-hidden="true",
- *     focus restitué au bouton déclencheur
+ *     focus restitué au bouton/liens déclencheur
  *   - Piège de focus : Tab/Shift+Tab bouclent sur les éléments focusables
- *     de la modale (8 éléments : bouton ×, 5 champs, Annuler, Ajouter)
+ *     de la modale (premier = bouton ×, dernier = bouton de soumission)
  *   - La modale de dépendance s'ouvre au clic sur "Voir le produit" d'un
  *     cadeau ayant des "requiredWishes" (ex : "Barre Olympique" → Half Rack)
+ *   - Un clic sur un lien SANS dépendance n'ouvre AUCUNE modale
  *
- * BUG CONNU DOCUMENTÉ (test "transfère le focus dans la modale") :
- *   openModal() appelle focus() de façon synchrone juste après
- *   classList.add("active"), alors que la transition CSS de visibilité
- *   (0.25s) n'a pas encore commencé : getComputedStyle(overlay).visibility
- *   vaut encore "hidden" à cet instant, donc element.focus() échoue
- *   silencieusement. Le focus ne migre donc jamais dans la modale à
- *   l'ouverture (impact accessibilité clavier réel). Ce test est marqué
- *   test.fail() : il échoue tant que le bug existe et passera d'office
- *   (« unexpected pass ») quand l'équipe corrigera l'app.
+ * Locateurs : uniquement rôles / libellés / textes (aucun sélecteur CSS).
+ * Les titres de cartes sont localisés avec un nom EXACT pour éviter les
+ * correspondances partielles ("Barre Olympique" vs "Stop disque barre
+ * olympique Orange").
  *
  * Exécution : npx playwright test --reporter=line
  */
 
 import { test, expect } from '@playwright/test';
 
-/** Alias Jest-style : les suites utilisent describe/it pour la lisibilité */
-const it = test;
-
 /**
  * @brief Active le mode admin puis ouvre la modale d'ajout de cadeau
  * @param {import('@playwright/test').Page} page - Page Playwright
- * @description Le bouton d'ajout est masqué hors mode admin : on clique
- *              d'abord sur "#admin-toggle", puis sur "#add-wish-btn".
+ * @description Le bouton d'ajout n'est visible qu'en mode admin : on clique
+ *              d'abord sur "Admin" (qui devient "Quitter"), puis on clique
+ *              sur "Ajouter un cadeau". On attend que la modale soit visible.
  */
 async function ouvrirModaleAjout(page) {
-    await page.locator('#admin-toggle').click();
-    await expect(page.locator('#add-wish-btn')).toBeVisible();
-    await page.locator('#add-wish-btn').click();
+    await page.getByRole('button', { name: 'Admin' }).click();
+    await expect(page.getByRole('button', { name: 'Ajouter un cadeau' })).toBeVisible();
+    await page.getByRole('button', { name: 'Ajouter un cadeau' }).click();
+    await expect(page.getByRole('dialog', { name: 'Ajouter un cadeau' })).toBeVisible();
 }
 
 test.describe('Modales (ajout & dépendance)', () => {
 
     /**
      * Avant chaque test : nettoyage du localStorage (tests autonomes,
-     * état de départ par défaut).
+     * état de départ par défaut — mode admin désactivé).
      */
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
@@ -61,162 +59,249 @@ test.describe('Modales (ajout & dépendance)', () => {
         await page.reload();
     });
 
-    /**
-     * @test Vérifie l'ouverture de la modale d'ajout
-     * @scenario Quand on active le mode admin puis qu'on clique sur le bouton "+"
-     * @expected La modale #add-modal devient visible (classe "active",
-     *           aria-hidden="false") et le formulaire s'affiche
-     */
-    it('ouvre la modale d\'ajout depuis le mode admin', async ({ page }) => {
-        await ouvrirModaleAjout(page);
+    test.describe('Modale d\'ajout', () => {
 
-        const modale = page.locator('#add-modal');
-        await expect(modale).toHaveClass(/active/);
-        await expect(modale).toHaveAttribute('aria-hidden', 'false');
-        await expect(modale.locator('.modal')).toBeVisible();
-        await expect(modale.locator('#add-form')).toBeVisible();
-    });
+        /**
+         * @test Vérifie l'ouverture de la modale d'ajout
+         * @scenario Quand on active le mode admin puis qu'on clique sur
+         *           "Ajouter un cadeau"
+         * @expected La modale (role=dialog "Ajouter un cadeau") devient
+         *           visible et le formulaire (Nom, Catégorie, Prix, Lien)
+         *           ainsi que ses boutons s'affichent
+         */
+        test('ouvre la modale d\'ajout depuis le mode admin', async ({ page }) => {
+            await test.step('Activer le mode admin', async () => {
+                await page.getByRole('button', { name: 'Admin' }).click();
+                await expect(page.getByRole('button', { name: 'Quitter' })).toBeVisible();
+            });
 
-    /**
-     * @test Vérifie la fermeture de la modale via le bouton "Annuler"
-     * @scenario Quand la modale est ouverte et qu'on clique sur "Annuler"
-     * @expected La modale se ferme (aria-hidden="true") et le focus revient
-     *           sur le bouton d'ajout qui l'a ouverte
-     */
-    it('ferme la modale d\'ajout avec le bouton Annuler', async ({ page }) => {
-        await ouvrirModaleAjout(page);
+            await test.step('Cliquer sur "Ajouter un cadeau"', async () => {
+                await page.getByRole('button', { name: 'Ajouter un cadeau' }).click();
+            });
 
-        await page.locator('#add-cancel').click();
+            await test.step('Vérifier la modale et son formulaire', async () => {
+                const modale = page.getByRole('dialog', { name: 'Ajouter un cadeau' });
+                await expect(modale).toBeVisible();
 
-        const modale = page.locator('#add-modal');
-        await expect(modale).toHaveAttribute('aria-hidden', 'true');
-        await expect(modale).not.toHaveClass(/active/);
+                await expect(modale.getByLabel('Nom du cadeau')).toBeVisible();
+                await expect(modale.getByLabel('Catégorie', { exact: true })).toBeVisible();
+                await expect(modale.getByLabel('Prix (€)')).toBeVisible();
+                await expect(modale.getByLabel('Lien du produit')).toBeVisible();
 
-        // Accessibilité : le focus est restitué au déclencheur
-        await expect(page.locator('#add-wish-btn')).toBeFocused();
-    });
-
-    /**
-     * @test Vérifie la fermeture de la modale par clic sur l'arrière-plan
-     * @scenario Quand la modale est ouverte et qu'on clique sur le fond sombre
-     *           (padding de l'overlay, hors carte de la modale)
-     * @expected La modale se ferme (aria-hidden="true", sans classe "active")
-     */
-    it('ferme la modale d\'ajout en cliquant sur l\'arrière-plan', async ({ page }) => {
-        await ouvrirModaleAjout(page);
-
-        // L'overlay a 20px de padding (--sp-5) : le coin (5,5) est du fond sombre
-        const modale = page.locator('#add-modal');
-        await modale.click({ position: { x: 5, y: 5 } });
-
-        await expect(modale).toHaveAttribute('aria-hidden', 'true');
-        await expect(modale).not.toHaveClass(/active/);
-    });
-
-    /**
-     * @test Vérifie que le focus reste piégé dans la modale (accessibilité)
-     * @scenario Quand la modale est ouverte (transition de visibilité terminée)
-     *           et qu'on navigue au clavier (Tab / Shift+Tab) sur ses éléments
-     * @expected Le focus boucle sans jamais sortir de la modale :
-     *           - depuis le premier élément (bouton ×), Shift+Tab va au dernier (Ajouter)
-     *           - depuis le dernier (Ajouter), Tab revient au premier (bouton ×)
-     *           - 8 Tab consécutifs depuis le bouton × restent tous dans la modale
-     */
-    it('piège le focus dans la modale d\'ajout (accessibilité clavier)', async ({ page }) => {
-        await ouvrirModaleAjout(page);
-
-        // On attend la fin de la transition de visibilité (0.25s) avant de
-        // manipuler le focus : un focus() lancé pendant la transition échoue
-        // silencieusement (élément encore visibility:hidden).
-        const modale = page.locator('#add-modal');
-        await expect(modale.locator('.modal')).toBeVisible();
-
-        // 1. Premier élément focusable de la modale (bouton ×)
-        const premier = page.locator('#add-modal-close');
-        await premier.focus();
-        await expect(premier).toBeFocused();
-
-        // 2. Shift+Tab depuis le premier élément → wrap vers le dernier (submit "Ajouter")
-        await page.keyboard.press('Shift+Tab');
-        const dansModale = await page.evaluate(() => !!document.activeElement.closest('#add-modal'));
-        expect(dansModale).toBe(true);
-        const texteActif = await page.evaluate(() => (document.activeElement.textContent || '').trim());
-        expect(texteActif).toBe('Ajouter');
-
-        // 3. Tab depuis le dernier élément → wrap vers le premier (bouton ×)
-        await page.keyboard.press('Tab');
-        const idActif = await page.evaluate(() => document.activeElement.id);
-        expect(idActif).toBe('add-modal-close');
-
-        // 4. Boucle complète : 8 éléments focusables → 8 Tab ramènent au point de départ,
-        //    sans jamais sortir de la modale
-        for (let i = 0; i < 8; i++) {
-            await page.keyboard.press('Tab');
-            const toujoursDansModale = await page.evaluate(
-                () => !!document.activeElement.closest('#add-modal')
-            );
-            expect(toujoursDansModale, `Tab n°${i + 1} : le focus doit rester dans la modale`)
-                .toBe(true);
-        }
-        await expect(premier).toBeFocused();
-    });
-
-    /**
-     * @test Vérifie l'ouverture/fermeture de la modale de dépendance (bonus)
-     * @scenario Quand on clique sur "Voir le produit" d'un cadeau ayant des
-     *           dépendances ("Barre Olympique" exige "Half Rack") puis qu'on
-     *           clique sur "Retour"
-     * @expected La modale #dependency-modal s'ouvre avec la liste des dépendances,
-     *           et se ferme au clic sur "Retour"
-     */
-    it('ouvre la modale de dépendance avant d\'accéder à un produit lié (bonus)', async ({ page }) => {
-        // Carte "Barre Olympique" (requiredWishes: [1] → Half Rack).
-        // :text-is() pour un correspondance EXACTE du titre (sinon "Stop disque
-        // barre olympique Orange" matche aussi en sous-chaîne).
-        const carte = page.locator('.wish-card').filter({
-            has: page.locator('h2:text-is("Barre Olympique")')
+                await expect(modale.getByRole('button', { name: 'Fermer' })).toBeVisible();
+                await expect(modale.getByRole('button', { name: 'Annuler' })).toBeVisible();
+                await expect(modale.getByRole('button', { name: 'Ajouter', exact: true })).toBeVisible();
+            });
         });
-        await carte.locator('a').click();
 
-        const modaleDep = page.locator('#dependency-modal');
-        await expect(modaleDep).toHaveClass(/active/);
-        await expect(modaleDep).toHaveAttribute('aria-hidden', 'false');
-        await expect(modaleDep.locator('#dependency-list .dependency-item')).toHaveCount(1);
-        await expect(modaleDep.locator('#dependency-list')).toContainText('Half Rack');
+        /**
+         * @test Vérifie le transfert du focus à l'ouverture (accessibilité)
+         * @scenario Quand la modale d'ajout vient de s'ouvrir
+         * @expected Le focus est placé sur le champ "Nom du cadeau"
+         *           (documenté dans openAddModal — src/js/app.js)
+         */
+        test('place le focus sur le champ Nom du cadeau à l\'ouverture (accessibilité)', async ({ page }) => {
+            await test.step('Ouvrir la modale d\'ajout', async () => {
+                await ouvrirModaleAjout(page);
+            });
 
-        // Fermeture via le bouton "Retour"
-        await page.locator('#modal-cancel').click();
-        await expect(modaleDep).toHaveAttribute('aria-hidden', 'true');
-        await expect(modaleDep).not.toHaveClass(/active/);
+            await test.step('Vérifier le focus initial dans la modale', async () => {
+                await expect(page.getByLabel('Nom du cadeau')).toBeFocused();
+            });
+        });
+
+        /**
+         * @test Vérifie la fermeture via le bouton "Annuler"
+         * @scenario Quand la modale est ouverte et qu'on clique sur "Annuler"
+         * @expected La modale se ferme (plus visible) et le focus est
+         *           restitué au bouton "Ajouter un cadeau" déclencheur
+         */
+        test('ferme la modale d\'ajout avec le bouton Annuler et restitue le focus', async ({ page }) => {
+            await test.step('Ouvrir la modale d\'ajout', async () => {
+                await ouvrirModaleAjout(page);
+            });
+
+            await test.step('Cliquer sur "Annuler"', async () => {
+                const modale = page.getByRole('dialog', { name: 'Ajouter un cadeau' });
+                await modale.getByRole('button', { name: 'Annuler' }).click();
+                await expect(modale).toBeHidden();
+            });
+
+            await test.step('Vérifier la restitution du focus au déclencheur', async () => {
+                await expect(page.getByRole('button', { name: 'Ajouter un cadeau' })).toBeFocused();
+            });
+        });
+
+        /**
+         * @test Vérifie la fermeture via la touche Échap
+         * @scenario Quand la modale est ouverte et qu'on presse Échap
+         * @expected La modale se ferme et le focus est restitué au déclencheur
+         */
+        test('ferme la modale d\'ajout avec la touche Échap', async ({ page }) => {
+            await test.step('Ouvrir la modale d\'ajout', async () => {
+                await ouvrirModaleAjout(page);
+            });
+
+            await test.step('Presser Échap', async () => {
+                await page.keyboard.press('Escape');
+                await expect(page.getByRole('dialog', { name: 'Ajouter un cadeau' })).toBeHidden();
+            });
+
+            await test.step('Vérifier la restitution du focus au déclencheur', async () => {
+                await expect(page.getByRole('button', { name: 'Ajouter un cadeau' })).toBeFocused();
+            });
+        });
+
+        /**
+         * @test Vérifie la fermeture par clic sur l'arrière-plan
+         * @scenario Quand la modale est ouverte et qu'on clique sur le fond
+         *           sombre (padding de l'overlay, hors carte de la modale)
+         * @expected La modale se ferme
+         */
+        test('ferme la modale d\'ajout en cliquant sur l\'arrière-plan', async ({ page }) => {
+            await test.step('Ouvrir la modale d\'ajout', async () => {
+                await ouvrirModaleAjout(page);
+            });
+
+            await test.step('Cliquer sur l\'arrière-plan de l\'overlay', async () => {
+                // L'overlay (position: fixed, inset: 0) a 20px de padding :
+                // le coin (5, 5) du viewport est du fond sombre cliquable
+                await page.mouse.click(5, 5);
+                await expect(page.getByRole('dialog', { name: 'Ajouter un cadeau' })).toBeHidden();
+            });
+        });
+
+        /**
+         * @test Vérifie le piège de focus (accessibilité clavier)
+         * @scenario Quand la modale est ouverte et qu'on navigue au clavier
+         *           depuis son premier élément focusable (bouton ×)
+         * @expected Le focus boucle sans jamais sortir de la modale :
+         *           - Shift+Tab depuis le premier élément (×) va au dernier
+         *             (bouton de soumission "Ajouter")
+         *           - Tab depuis le dernier élément revient au premier (×)
+         */
+        test('piège le focus dans la modale (Tab / Shift+Tab)', async ({ page }) => {
+            await test.step('Ouvrir la modale d\'ajout', async () => {
+                await ouvrirModaleAjout(page);
+            });
+
+            const modale = page.getByRole('dialog', { name: 'Ajouter un cadeau' });
+            const boutonFermer = modale.getByRole('button', { name: 'Fermer' });
+            const boutonAjouter = modale.getByRole('button', { name: 'Ajouter', exact: true });
+
+            await test.step('Placer le focus sur le premier élément focusable', async () => {
+                await expect(boutonFermer).toBeVisible();
+                await boutonFermer.focus();
+                await expect(boutonFermer).toBeFocused();
+            });
+
+            await test.step('Shift+Tab depuis le premier élément boucle vers le dernier', async () => {
+                await page.keyboard.press('Shift+Tab');
+                await expect(boutonAjouter).toBeFocused();
+            });
+
+            await test.step('Tab depuis le dernier élément boucle vers le premier', async () => {
+                await page.keyboard.press('Tab');
+                await expect(boutonFermer).toBeFocused();
+            });
+        });
+
     });
 
-    /**
-     * @test BUG CONNU (marqué test.fail) — Le focus initial n'entre pas dans la modale
-     * @scenario Quand on clique sur le bouton "+" pour ouvrir la modale d'ajout
-     * @expected Le focus devrait atterrir sur le champ "#add-name" (premier champ
-     *           à remplir), comme le prévoit openAddModal()
-     *
-     * RÉSULTAT ACTUEL : ÉCHEC ATTENDU. openModal() et openAddModal() appellent
-     * focus() de façon synchrone juste après classList.add("active"). À cet
-     * instant, la transition CSS de visibilité de l'overlay (0.25s) n'a pas
-     * progressé : getComputedStyle(overlay).visibility vaut encore "hidden",
-     * donc element.focus() échoue silencieusement. Le focus reste sur le
-     * bouton déclencheur : un utilisateur au clavier n'entre jamais
-     * automatiquement dans la modale (défaut d'accessibilité réel, constaté
-     * en conditions réelles avec Chromium — trace de debug disponible).
-     *
-     * QUAND L'APP SERA CORRIGÉE (ex : focus() dans requestAnimationFrame ou
-     * après transitionend), ce test passera « d'office » et Playwright
-     * signalera un « unexpected pass » : il faudra alors retirer test.fail().
-     */
-    it('transfère le focus dans la modale à l\'ouverture (bug connu — échoue volontairement)', async ({ page }) => {
-        test.fail();
+    test.describe('Modale de dépendance', () => {
 
-        await ouvrirModaleAjout(page);
+        /**
+         * @test Vérifie l'ouverture et le contenu de la modale de dépendance
+         * @scenario Quand on clique sur "Voir le produit" d'un cadeau ayant
+         *           des dépendances ("Barre Olympique" exige "Half Rack")
+         * @expected La modale (role=dialog "Attention") s'ouvre, affiche le
+         *           cadeau requis "Half Rack", puis se ferme au clic sur
+         *           "Retour" avec restitution du focus au lien déclencheur
+         */
+        test('ouvre la modale de dépendance et affiche les cadeaux requis', async ({ page }) => {
+            await test.step('Cliquer sur "Voir le produit" de "Barre Olympique"', async () => {
+                // Nom de titre EXACT : "Stop disque barre olympique Orange"
+                // contient aussi "barre olympique" en minuscules
+                const carte = page.getByRole('article').filter({
+                    has: page.getByRole('heading', { name: 'Barre Olympique', exact: true })
+                });
+                await expect(carte).toBeVisible();
+                await carte.getByRole('link', { name: 'Voir le produit' }).click();
+            });
 
-        // La modale est ouverte : le focus DEVRAIT être sur le champ nom
-        await expect(page.locator('#add-modal')).toHaveClass(/active/);
-        await expect(page.locator('#add-name')).toBeFocused();
+            await test.step('Vérifier la modale et sa liste de dépendances', async () => {
+                const modale = page.getByRole('dialog', { name: 'Attention' });
+                await expect(modale).toBeVisible();
+                await expect(modale.getByRole('heading', { name: 'Attention' })).toBeVisible();
+                await expect(modale.getByText('Half Rack', { exact: true })).toBeVisible();
+                await expect(modale.getByRole('button', { name: 'Retour' })).toBeVisible();
+            });
+
+            await test.step('Fermer via "Retour" et vérifier la restitution du focus', async () => {
+                const carte = page.getByRole('article').filter({
+                    has: page.getByRole('heading', { name: 'Barre Olympique', exact: true })
+                });
+                await page.getByRole('dialog', { name: 'Attention' })
+                    .getByRole('button', { name: 'Retour' }).click();
+
+                await expect(page.getByRole('dialog', { name: 'Attention' })).toBeHidden();
+                await expect(carte.getByRole('link', { name: 'Voir le produit' })).toBeFocused();
+            });
+        });
+
+        /**
+         * @test Vérifie la fermeture de la modale de dépendance par Échap
+         * @scenario Quand la modale de dépendance est ouverte et qu'on
+         *           presse Échap
+         * @expected La modale se ferme et le focus est restitué au lien
+         *           "Voir le produit" déclencheur
+         */
+        test('ferme la modale de dépendance avec la touche Échap', async ({ page }) => {
+            await test.step('Ouvrir la modale de dépendance', async () => {
+                const carte = page.getByRole('article').filter({
+                    has: page.getByRole('heading', { name: 'Barre Olympique', exact: true })
+                });
+                await carte.getByRole('link', { name: 'Voir le produit' }).click();
+                await expect(page.getByRole('dialog', { name: 'Attention' })).toBeVisible();
+            });
+
+            await test.step('Presser Échap et vérifier la fermeture', async () => {
+                await page.keyboard.press('Escape');
+                await expect(page.getByRole('dialog', { name: 'Attention' })).toBeHidden();
+            });
+
+            await test.step('Vérifier la restitution du focus au lien', async () => {
+                const carte = page.getByRole('article').filter({
+                    has: page.getByRole('heading', { name: 'Barre Olympique', exact: true })
+                });
+                await expect(carte.getByRole('link', { name: 'Voir le produit' })).toBeFocused();
+            });
+        });
+
+        /**
+         * @test Vérifie qu'aucune modale ne s'ouvre sans dépendance
+         * @scenario Quand on clique sur "Voir le produit" d'un cadeau SANS
+         *           dépendances ("Half Rack" n'en a pas)
+         * @expected Aucune modale de dépendance ne s'ouvre (le lien ouvre
+         *           directement le produit dans un nouvel onglet)
+         */
+        test('n\'ouvre pas de modale pour un produit sans dépendance', async ({ page }) => {
+            // Le lien ouvre un nouvel onglet : on le referme aussitôt
+            page.on('popup', popup => popup.close());
+
+            await test.step('Cliquer sur "Voir le produit" de "Half Rack"', async () => {
+                const carte = page.getByRole('article').filter({
+                    has: page.getByRole('heading', { name: 'Half Rack', exact: true })
+                });
+                await expect(carte).toBeVisible();
+                await carte.getByRole('link', { name: 'Voir le produit' }).click();
+            });
+
+            await test.step('Vérifier qu\'aucune modale de dépendance ne s\'est ouverte', async () => {
+                await expect(page.getByRole('dialog', { name: 'Attention' })).toBeHidden();
+            });
+        });
+
     });
 
 });

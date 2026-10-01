@@ -27,9 +27,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npx serve src',
+    command: 'npm run start',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
-    timeout: 30000,
+    timeout: 60000,
+    cwd: '..',
   },
 });

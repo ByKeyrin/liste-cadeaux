@@ -4,36 +4,39 @@
  * @author TEMPER — Agent QA
  *
  * @description Vérifie le tri par prix croissant/décroissant, l'ordre
- *              original par défaut et la sauvegarde du tri dans localStorage.
+ *              original par défaut, la combinaison tri + filtre, et la
+ *              sauvegarde du tri dans localStorage.
  *
  * Données de référence (liste de Kévin, 24 souhaits) :
  *   - Prix le plus bas  : 13.99 €  → "Stop disque barre olympique Orange" (id 9)
  *   - Prix le plus haut : 599.00 € → "Appareil Photo - Olympus E-M10 Mark II" (id 24)
- *   - Ordre par défaut  : ordre du fichier data/wishes.js
+ *   - Ordre par défaut  : ordre du fichier src/data/wishes.js
  *     → premier "Half Rack" (id 1), dernier "Olympus" (id 24)
+ *   - Catégorie Sport   : 15 souhaits (le moins cher y est aussi à 13.99 €)
  *
- * Le tri est appliqué via le <select id="sort-select">
+ * Le tri est appliqué via le <select> "Trier les cadeaux par prix"
  * (valeurs : "default", "price-asc", "price-desc") et sauvegardé
  * dans localStorage sous la clé "wishlist.prefs".
+ *
+ * Locateurs : uniquement rôles / libellés / textes (aucun sélecteur CSS).
+ * Les prix sont lus via le rôle "paragraph" de chaque carte (article).
  *
  * Exécution : npx playwright test --reporter=line
  */
 
 import { test, expect } from '@playwright/test';
 
-/** Alias Jest-style : les suites utilisent describe/it pour la lisibilité */
-const it = test;
-
 /**
  * @brief Lit les prix affichés sur les cartes de la liste
  * @param {import('@playwright/test').Page} page - Page Playwright
  * @returns {Promise<number[]>} Prix extraits du DOM, dans l'ordre d'affichage
- * @description Les prix sont formatés par l'appex (ex : "13.99 €") ;
- *              on retire le symbole € et on parse le nombre.
+ * @description Chaque carte (<article>) contient un unique paragraphe
+ *              portant le prix formaté par l'appex (ex : "13.99 €").
+ *              On retire le symbole € et on parse le nombre.
  */
-async function getPrixAffiches(page) {
-    const textes = await page.locator('#wishlist .wish-card .wish-price').allTextContents();
-    return textes.map(texte => parseFloat(texte.replace('€', '').trim()));
+async function getPrixDansLesCartes(page) {
+    const textes = await page.getByRole('article').getByRole('paragraph').allTextContents();
+    return textes.map(texte => parseFloat(texte.replace(/[^\d.,-]/g, '').replace(',', '.')));
 }
 
 test.describe('Tri des cadeaux par prix', () => {
@@ -55,28 +58,37 @@ test.describe('Tri des cadeaux par prix', () => {
      *           le premier cadeau est le moins cher (13.99 €) et le dernier
      *           le plus cher (599.00 €)
      */
-    it('trie les cadeaux par prix croissant', async ({ page }) => {
-        await page.locator('#sort-select').selectOption('price-asc');
+    test('trie les cadeaux par prix croissant', async ({ page }) => {
+        await test.step('Sélectionner le tri prix croissant', async () => {
+            await page.getByRole('combobox', { name: 'Trier les cadeaux par prix' }).selectOption('price-asc');
+        });
 
-        const prix = await getPrixAffiches(page);
-        expect(prix.length).toBe(24);
+        await test.step('Vérifier l\'ordre croissant des 24 prix', async () => {
+            const prix = await getPrixDansLesCartes(page);
+            expect(prix).toHaveLength(24);
 
-        // Vérification monotone croissante
-        for (let i = 1; i < prix.length; i++) {
-            expect(prix[i], `prix[${i}]=${prix[i]} doit être ≥ prix[${i - 1}]=${prix[i - 1]}`)
-                .toBeGreaterThanOrEqual(prix[i - 1]);
-        }
+            for (let i = 1; i < prix.length; i++) {
+                expect(prix[i], `prix[${i}]=${prix[i]} doit être ≥ prix[${i - 1}]=${prix[i - 1]}`)
+                    .toBeGreaterThanOrEqual(prix[i - 1]);
+            }
 
-        // Bornes de la liste triée
-        expect(prix[0]).toBe(13.99);
-        expect(prix[prix.length - 1]).toBe(599);
+            // Bornes de la liste triée
+            expect(prix[0]).toBe(13.99);
+            expect(prix[prix.length - 1]).toBe(599);
+        });
 
-        // Premier élément identifié par son nom
-        await expect(page.locator('#wishlist .wish-card h2').first())
-            .toHaveText('Stop disque barre olympique Orange');
+        await test.step('Vérifier le premier et le dernier cadeau', async () => {
+            const cartes = page.getByRole('article');
+            await expect(cartes.first().getByRole('heading', { level: 2 }))
+                .toHaveText('Stop disque barre olympique Orange');
+            await expect(cartes.last().getByRole('heading', { level: 2 }))
+                .toHaveText('Appareil Photo - Olympus E-M10 Mark II');
+        });
 
-        // Le sélecteur reflète la valeur choisie
-        await expect(page.locator('#sort-select')).toHaveValue('price-asc');
+        await test.step('Vérifier que le sélecteur reflète le choix', async () => {
+            await expect(page.getByRole('combobox', { name: 'Trier les cadeaux par prix' }))
+                .toHaveValue('price-asc');
+        });
     });
 
     /**
@@ -86,46 +98,94 @@ test.describe('Tri des cadeaux par prix', () => {
      *           le premier cadeau est le plus cher (599.00 €) et le dernier
      *           le moins cher (13.99 €)
      */
-    it('trie les cadeaux par prix décroissant', async ({ page }) => {
-        await page.locator('#sort-select').selectOption('price-desc');
+    test('trie les cadeaux par prix décroissant', async ({ page }) => {
+        await test.step('Sélectionner le tri prix décroissant', async () => {
+            await page.getByRole('combobox', { name: 'Trier les cadeaux par prix' }).selectOption('price-desc');
+        });
 
-        const prix = await getPrixAffiches(page);
-        expect(prix.length).toBe(24);
+        await test.step('Vérifier l\'ordre décroissant des 24 prix', async () => {
+            const prix = await getPrixDansLesCartes(page);
+            expect(prix).toHaveLength(24);
 
-        // Vérification monotone décroissante
-        for (let i = 1; i < prix.length; i++) {
-            expect(prix[i], `prix[${i}]=${prix[i]} doit être ≤ prix[${i - 1}]=${prix[i - 1]}`)
-                .toBeLessThanOrEqual(prix[i - 1]);
-        }
+            for (let i = 1; i < prix.length; i++) {
+                expect(prix[i], `prix[${i}]=${prix[i]} doit être ≤ prix[${i - 1}]=${prix[i - 1]}`)
+                    .toBeLessThanOrEqual(prix[i - 1]);
+            }
 
-        // Bornes de la liste triée
-        expect(prix[0]).toBe(599);
-        expect(prix[prix.length - 1]).toBe(13.99);
+            expect(prix[0]).toBe(599);
+            expect(prix[prix.length - 1]).toBe(13.99);
+        });
 
-        // Premier élément identifié par son nom
-        await expect(page.locator('#wishlist .wish-card h2').first())
-            .toHaveText('Appareil Photo - Olympus E-M10 Mark II');
+        await test.step('Vérifier le premier et le dernier cadeau', async () => {
+            const cartes = page.getByRole('article');
+            await expect(cartes.first().getByRole('heading', { level: 2 }))
+                .toHaveText('Appareil Photo - Olympus E-M10 Mark II');
+            await expect(cartes.last().getByRole('heading', { level: 2 }))
+                .toHaveText('Stop disque barre olympique Orange');
+        });
 
-        // Le sélecteur reflète la valeur choisie
-        await expect(page.locator('#sort-select')).toHaveValue('price-desc');
+        await test.step('Vérifier que le sélecteur reflète le choix', async () => {
+            await expect(page.getByRole('combobox', { name: 'Trier les cadeaux par prix' }))
+                .toHaveValue('price-desc');
+        });
     });
 
     /**
      * @test Vérifie que l'ordre par défaut est l'ordre original des données
      * @scenario Quand la page est chargée sans aucune préférence (localStorage vide)
-     * @expected Le tri est "default", la liste suit l'ordre de data/wishes.js :
+     * @expected Le tri est "default", la liste suit l'ordre de src/data/wishes.js :
      *           premier "Half Rack", dernier "Olympus", 24 cartes au total
      */
-    it('affiche l\'ordre original par défaut (ordre du fichier de données)', async ({ page }) => {
-        // Aucune action de tri : l'état de départ doit être "default"
-        await expect(page.locator('#sort-select')).toHaveValue('default');
+    test('affiche l\'ordre original des données par défaut', async ({ page }) => {
+        await test.step('Vérifier la valeur par défaut du sélecteur', async () => {
+            await expect(page.getByRole('combobox', { name: 'Trier les cadeaux par prix' }))
+                .toHaveValue('default');
+        });
 
-        const cartes = page.locator('#wishlist .wish-card h2');
-        await expect(cartes).toHaveCount(24);
+        await test.step('Vérifier l\'ordre premier/dernier de la liste', async () => {
+            const cartes = page.getByRole('article');
+            await expect(cartes).toHaveCount(24);
+            await expect(cartes.first().getByRole('heading', { level: 2 })).toHaveText('Half Rack');
+            await expect(cartes.last().getByRole('heading', { level: 2 }))
+                .toHaveText('Appareil Photo - Olympus E-M10 Mark II');
+        });
+    });
 
-        // Premier et dernier cadeau de la liste d'origine
-        await expect(cartes.first()).toHaveText('Half Rack');
-        await expect(cartes.last()).toHaveText('Appareil Photo - Olympus E-M10 Mark II');
+    /**
+     * @test Vérifie que le tri fonctionne avec un filtre actif
+     * @scenario Quand on filtre par "Sport" puis qu'on trie en prix croissant
+     * @expected Seules les 15 cartes Sport sont affichées, leur prix est
+     *           croissant (le moins cher : 13.99 €) et le compteur indique
+     *           "15 sur 24 cadeaux"
+     */
+    test('combine le tri et un filtre de catégorie', async ({ page }) => {
+        await test.step('Filtrer par Sport', async () => {
+            await page.getByRole('button', { name: 'Filtrer par Sport' }).click();
+            await expect(page.getByRole('article')).toHaveCount(15);
+        });
+
+        await test.step('Trier les prix restants en croissant', async () => {
+            await page.getByRole('combobox', { name: 'Trier les cadeaux par prix' }).selectOption('price-asc');
+        });
+
+        await test.step('Vérifier l\'ordre croissant sur le sous-ensemble filtré', async () => {
+            const prix = await getPrixDansLesCartes(page);
+            expect(prix).toHaveLength(15);
+
+            for (let i = 1; i < prix.length; i++) {
+                expect(prix[i], `prix[${i}]=${prix[i]} doit être ≥ prix[${i - 1}]=${prix[i - 1]}`)
+                    .toBeGreaterThanOrEqual(prix[i - 1]);
+            }
+
+            // Le moins cher de la catégorie Sport est aussi le moins cher global
+            expect(prix[0]).toBe(13.99);
+        });
+
+        await test.step('Vérifier le compteur filtré et le sélecteur', async () => {
+            await expect(page.getByText('15 sur 24 cadeaux', { exact: true })).toBeVisible();
+            await expect(page.getByRole('combobox', { name: 'Trier les cadeaux par prix' }))
+                .toHaveValue('price-asc');
+        });
     });
 
     /**
@@ -134,16 +194,21 @@ test.describe('Tri des cadeaux par prix', () => {
      * @expected La clé "wishlist.prefs" contient un JSON dont le champ sort
      *           vaut "price-desc" (les autres préférences restent par défaut)
      */
-    it('sauvegarde la valeur du tri dans localStorage', async ({ page }) => {
-        await page.locator('#sort-select').selectOption('price-desc');
+    test('sauvegarde la valeur du tri dans localStorage', async ({ page }) => {
+        await test.step('Sélectionner le tri prix décroissant', async () => {
+            await page.getByRole('combobox', { name: 'Trier les cadeaux par prix' }).selectOption('price-desc');
+        });
 
-        const brut = await page.evaluate(() => window.localStorage.getItem('wishlist.prefs'));
-        expect(brut).not.toBeNull();
+        await test.step('Vérifier le contenu de wishlist.prefs', async () => {
+            const prefs = await page.evaluate(() =>
+                JSON.parse(window.localStorage.getItem('wishlist.prefs'))
+            );
 
-        const prefs = JSON.parse(brut);
-        expect(prefs.sort).toBe('price-desc');
-        expect(prefs.personId).toBe('kevin');
-        expect(prefs.category).toBe('Tous');
+            expect(prefs).not.toBeNull();
+            expect(prefs.sort).toBe('price-desc');
+            expect(prefs.personId).toBe('kevin');
+            expect(prefs.category).toBe('Tous');
+        });
     });
 
 });
