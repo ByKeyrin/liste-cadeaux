@@ -8,7 +8,10 @@
     "start": "npx serve .",
     "lint": "npx eslint js/",
     "build": "echo 'Pas de build nécessaire (vanilla JS)'",
-    "test": "echo 'Tests à configurer'"
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:headed": "npx playwright test --headed",
+    "test:report": "npx playwright show-report"
   },
   "keywords": [
     "cadeaux",
@@ -23,6 +26,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.63.0",
     "eslint": "^10.11.0"
   }
 }
