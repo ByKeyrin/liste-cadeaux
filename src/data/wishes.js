@@ -242,7 +242,7 @@ const wishesByPerson = {
         {
             id: 25,
             name: "Guitare Squier Sonic Tele Butterscotch",
-            category: "Musique",
+            category: "Loisir",
             image: "images/cadeaux/squier-sonic-tele.jpg",
             price: 229.00,
             url: "https://www.thomann.fr/squier_sonic_tele_mn_butterscotchb.htm",
@@ -251,7 +251,7 @@ const wishesByPerson = {
         {
             id: 26,
             name: "Ampli Marshall MG30GFX",
-            category: "Musique",
+            category: "Loisir",
             image: "images/cadeaux/marshall-mg30gfx.jpg",
             price: 229.00,
             url: "https://www.thomann.fr/marshall_mg30gfx.htm",
@@ -260,7 +260,7 @@ const wishesByPerson = {
         {
             id: 27,
             name: "Câble Fender Deluxe 3m Tweed",
-            category: "Musique",
+            category: "Loisir",
             image: "images/cadeaux/fender-deluxe-cable.jpg",
             price: 25.90,
             url: "https://www.thomann.fr/fender_deluxe_cable_3m_tweed_n.htm",
@@ -269,7 +269,7 @@ const wishesByPerson = {
         {
             id: 28,
             name: "Med picks Fender Classic Celluloid",
-            category: "Musique",
+            category: "Loisir",
             image: "images/cadeaux/fender-picks.jpg",
             price: 5.50,
             url: "https://www.thomann.fr/fender_classic_celluloid_picks_shell_03.htm",
