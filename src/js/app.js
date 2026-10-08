@@ -585,15 +585,38 @@
     }
 
     /**
+     * @brief Place le focus sur un élément dès qu'il est réellement focusable
+     * @function focusWhenReady
+     * @param {HTMLElement} element - L'élément à focaliser
+     * @param {number} [attempts=30] - Nombre maximal de tentatives (1 par frame)
+     * @description La modale passe de visibility:hidden à visible via une
+     *              transition CSS : un focus() effectué trop tôt est ignoré
+     *              silencieusement par le navigateur. On retente donc à chaque
+     *              frame jusqu'à ce que le focus soit effectivement posé, en
+     *              abandonnant si la modale est refermée entre-temps.
+     */
+    function focusWhenReady(element, attempts = 30) {
+        if (!element || typeof element.focus !== "function") return;
+        let restantes = attempts;
+        (function tenter() {
+            if (!openModalElement || !openModalElement.contains(element)) return;
+            element.focus({ preventScroll: true });
+            if (document.activeElement === element) return;
+            if (--restantes > 0) requestAnimationFrame(tenter);
+        })();
+    }
+
+    /**
      * @brief Ouvre une modale avec accessibilité complète
      * @function openModal
      * @param {HTMLElement} modal - L'élément modale à ouvrir
      * @param {HTMLElement} [trigger] - L'élément déclencheur (pour retour du focus)
+     * @param {HTMLElement} [initialFocus] - Élément à focaliser (défaut : premier focusable)
      * @description Ajoute la classe "active", définit aria-hidden="false",
      *              désactive le scroll du body, et transfère le focus au premier
-     *              élément focusable de la modale.
+     *              élément focusable de la modale (ou à initialFocus).
      */
-    function openModal(modal, trigger) {
+    function openModal(modal, trigger, initialFocus) {
         if (!modal) return;
         modalTriggerElement = trigger || document.activeElement;
         modal.classList.add("active");
@@ -601,12 +624,8 @@
         document.body.style.overflow = "hidden";
         openModalElement = modal;
         const focusable = getFocusable(modal);
-        if (focusable.length) {
-            // Attendre la fin de la transition CSS avant de focus
-            requestAnimationFrame(() => {
-                setTimeout(() => focusable[0].focus(), 50);
-            });
-        }
+        const cible = initialFocus || focusable[0];
+        if (cible) focusWhenReady(cible);
     }
 
     /**
@@ -721,14 +740,8 @@
         if (!addModal) return;
         const priceInput = document.getElementById("add-price");
         if (priceInput) priceInput.setCustomValidity("");
-        openModal(addModal, trigger);
         const nameInput = document.getElementById("add-name");
-        if (nameInput) {
-            // Attendre la fin de la transition CSS (visibility) avant de focus
-            requestAnimationFrame(() => {
-                setTimeout(() => nameInput.focus(), 50);
-            });
-        }
+        openModal(addModal, trigger, nameInput);
     }
 
     /**
