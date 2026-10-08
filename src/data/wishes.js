@@ -281,7 +281,7 @@ const wishesByPerson = {
             category: "Loisir",
             image: "images/cadeaux/fender-strap.jpg",
             price: 25,
-            url: "#",
+            url: "https://www.thomann.fr/fender_weighless_2_mono_strap_byb.htm",
             requiredWishes: [25]
         },
         {
@@ -290,7 +290,7 @@ const wishesByPerson = {
             category: "Loisir",
             image: "images/cadeaux/guitar-case.jpg",
             price: 60,
-            url: "#",
+            url: "https://www.thomann.fr/fender_clsc_srs_p_j_bass_twd.htm",
             requiredWishes: [25]
         }
     ],
