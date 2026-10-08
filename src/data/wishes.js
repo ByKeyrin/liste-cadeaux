@@ -244,7 +244,7 @@ const wishesByPerson = {
             name: "Guitare Squier Sonic Tele Butterscotch",
             category: "Loisir",
             image: "images/cadeaux/squier-sonic-tele.jpg",
-            price: 229.00,
+            price: 168,
             url: "https://www.thomann.fr/squier_sonic_tele_mn_butterscotchb.htm",
             requiredWishes: null
         },
@@ -253,7 +253,7 @@ const wishesByPerson = {
             name: "Ampli Marshall MG30GFX",
             category: "Loisir",
             image: "images/cadeaux/marshall-mg30gfx.jpg",
-            price: 229.00,
+            price: 179,
             url: "https://www.thomann.fr/marshall_mg30gfx.htm",
             requiredWishes: [25]
         },
@@ -262,7 +262,7 @@ const wishesByPerson = {
             name: "Câble Fender Deluxe 3m Tweed",
             category: "Loisir",
             image: "images/cadeaux/fender-deluxe-cable.jpg",
-            price: 25.90,
+            price: 17.9,
             url: "https://www.thomann.fr/fender_deluxe_cable_3m_tweed_n.htm",
             requiredWishes: [25]
         },
@@ -271,7 +271,7 @@ const wishesByPerson = {
             name: "Med picks Fender Classic Celluloid",
             category: "Loisir",
             image: "images/cadeaux/fender-picks.jpg",
-            price: 5.50,
+            price: 5.5,
             url: "https://www.thomann.fr/fender_classic_celluloid_picks_shell_03.htm",
             requiredWishes: [25]
         },
@@ -280,7 +280,7 @@ const wishesByPerson = {
             name: "Sangle Fender",
             category: "Loisir",
             image: "images/cadeaux/fender-strap.jpg",
-            price: 25,
+            price: 24.9,
             url: "https://www.thomann.fr/fender_weighless_2_mono_strap_byb.htm",
             requiredWishes: [25]
         },
@@ -289,7 +289,7 @@ const wishesByPerson = {
             name: "Étui guitare",
             category: "Loisir",
             image: "images/cadeaux/guitar-case.jpg",
-            price: 60,
+            price: 175,
             url: "https://www.thomann.fr/fender_clsc_srs_p_j_bass_twd.htm",
             requiredWishes: [25]
         }
