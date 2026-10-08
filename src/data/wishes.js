@@ -238,6 +238,42 @@ const wishesByPerson = {
             price: 599.00,
             url: "https://www.amazon.fr/Olympus-Appareil-num%C3%A9rique-compact-Objectif/dp/B017LG73O6/ref=asc_df_B017LG73O6?mcid=2618bda17c033927873efaaa056b247a&tag=googshopfr-21&linkCode=df0&hvadid=701565897021&hvpos=&hvnetw=g&hvrand=4551023610390605615&hvpone=&hvptwo=&hvqmt=&hvdev=c&hvdvcmdl=&hvlocint=&hvlocphy=9056080&hvtargid=pla-594304351884&hvocijid=4551023610390605615-B017LG73O6-&hvexpln=0&th=1",
             requiredWishes: null
+        },
+        {
+            id: 25,
+            name: "Guitare Squier Sonic Tele Butterscotch",
+            category: "Musique",
+            image: "images/cadeaux/squier-sonic-tele.jpg",
+            price: 229.00,
+            url: "https://www.thomann.fr/squier_sonic_tele_mn_butterscotchb.htm",
+            requiredWishes: null
+        },
+        {
+            id: 26,
+            name: "Ampli Marshall MG30GFX",
+            category: "Musique",
+            image: "images/cadeaux/marshall-mg30gfx.jpg",
+            price: 229.00,
+            url: "https://www.thomann.fr/marshall_mg30gfx.htm",
+            requiredWishes: [25]
+        },
+        {
+            id: 27,
+            name: "Câble Fender Deluxe 3m Tweed",
+            category: "Musique",
+            image: "images/cadeaux/fender-deluxe-cable.jpg",
+            price: 25.90,
+            url: "https://www.thomann.fr/fender_deluxe_cable_3m_tweed_n.htm",
+            requiredWishes: [25]
+        },
+        {
+            id: 28,
+            name: "Med picks Fender Classic Celluloid",
+            category: "Musique",
+            image: "images/cadeaux/fender-picks.jpg",
+            price: 5.50,
+            url: "https://www.thomann.fr/fender_classic_celluloid_picks_shell_03.htm",
+            requiredWishes: [25]
         }
     ],
 
