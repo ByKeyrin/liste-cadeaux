@@ -12,7 +12,7 @@
  *
  * Données de référence (src/data/wishes.js) :
  *   - Personne par défaut : "kevin" (première du tableau `people`)
- *   - Kévin possède 24 souhaits → compteur "24 cadeaux" sans filtre
+ *   - Kévin possède 30 souhaits → compteur "30 cadeaux" sans filtre
  *   - Premier cadeau de Kévin : "Half Rack" — 329.99 €
  *
  * Locateurs : uniquement rôles / libellés / textes (aucun sélecteur CSS).
@@ -71,7 +71,7 @@ test.describe('Chargement de la page', () => {
      * @test Vérifie que les éléments principaux de l'interface sont visibles
      * @scenario Quand la page est chargée (état par défaut, aucun filtre)
      * @expected La nav de sélection de personne (2 onglets), la nav de filtres
-     *           (sélecteur de tri + bouton "Tous"), les 24 cartes de Kévin et
+     *           (sélecteur de tri + bouton "Tous"), les 30 cartes de Kévin et
      *           le bouton Admin sont tous visibles
      */
     test('les éléments principaux de l\'interface sont visibles', async ({ page }) => {
@@ -91,7 +91,7 @@ test.describe('Chargement de la page', () => {
         });
 
         await test.step('Vérifier la liste des cadeaux et le bouton Admin', async () => {
-            await expect(page.getByRole('article')).toHaveCount(24);
+            await expect(page.getByRole('article')).toHaveCount(30);
             await expect(page.getByRole('button', { name: 'Admin' })).toBeVisible();
         });
     });
@@ -99,10 +99,10 @@ test.describe('Chargement de la page', () => {
     /**
      * @test Vérifie que le compteur de résultats s'affiche
      * @scenario Quand la page est chargée sans filtre actif
-     * @expected Le compteur affiche "24 cadeaux" (les 24 souhaits de Kévin)
+     * @expected Le compteur affiche "30 cadeaux" (les 30 souhaits de Kévin)
      */
     test('le compteur de résultats affiche le nombre total de cadeaux', async ({ page }) => {
-        await expect(page.getByText('24 cadeaux', { exact: true })).toBeVisible();
+        await expect(page.getByText('30 cadeaux', { exact: true })).toBeVisible();
     });
 
     /**

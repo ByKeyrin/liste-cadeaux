@@ -10,9 +10,9 @@
  *              localStorage.
  *
  * Données de référence (src/data/wishes.js) :
- *   - Kévin : 24 souhaits — Sport (15), Mode (6), Loisir (3)
+ *   - Kévin : 30 souhaits — Sport (15), Mode (6), Loisir (9)
  *   - Lucie :  3 souhaits — Beauté (1), Maison (2)
- *   - Compteur filtré : "X sur 24 cadeaux" (format giftLabel de l'appex)
+ *   - Compteur filtré : "X sur 30 cadeaux" (format giftLabel de l'appex)
  *   - Changer de personne réinitialise la catégorie à "Tous" et supprime
  *     les boutons de catégorie qui n'existent plus pour la nouvelle liste
  *
@@ -51,7 +51,7 @@ test.describe('Filtres par catégorie et par personne', () => {
      * @scenario Quand on clique sur le bouton de catégorie "Sport"
      * @expected Seules les 15 cartes de catégorie Sport sont affichées
      *           (badge "Sport" sur chacune), le compteur passe à
-     *           "15 sur 24 cadeaux" et le bouton Sport est marqué actif
+     *           "15 sur 30 cadeaux" et le bouton Sport est marqué actif
      */
     test('filtre les cadeaux par catégorie Sport', async ({ page }) => {
         await test.step('Activer le filtre Sport', async () => {
@@ -60,7 +60,7 @@ test.describe('Filtres par catégorie et par personne', () => {
 
         await test.step('Vérifier les cartes affichées et le compteur', async () => {
             await expect(page.getByRole('article')).toHaveCount(15);
-            await expect(page.getByText('15 sur 24 cadeaux', { exact: true })).toBeVisible();
+            await expect(page.getByText('15 sur 30 cadeaux', { exact: true })).toBeVisible();
 
             // Chaque carte affichée porte le badge "Sport"
             await expect(page.getByRole('article').getByText('Sport', { exact: true }))
@@ -78,8 +78,8 @@ test.describe('Filtres par catégorie et par personne', () => {
     /**
      * @test Vérifie le filtrage par catégorie Loisir
      * @scenario Quand on clique sur le bouton de catégorie "Loisir"
-     * @expected Seules les 3 cartes Loisir sont affichées et le compteur
-     *           passe à "3 sur 24 cadeaux"
+     * @expected Seules les 9 cartes Loisir sont affichées et le compteur
+     *           passe à "9 sur 30 cadeaux"
      */
     test('filtre les cadeaux par catégorie Loisir', async ({ page }) => {
         await test.step('Activer le filtre Loisir', async () => {
@@ -87,8 +87,8 @@ test.describe('Filtres par catégorie et par personne', () => {
         });
 
         await test.step('Vérifier les cartes affichées et le compteur', async () => {
-            await expect(page.getByRole('article')).toHaveCount(3);
-            await expect(page.getByText('3 sur 24 cadeaux', { exact: true })).toBeVisible();
+            await expect(page.getByRole('article')).toHaveCount(9);
+            await expect(page.getByText('9 sur 30 cadeaux', { exact: true })).toBeVisible();
             await expect(page.getByRole('button', { name: 'Filtrer par Loisir' }))
                 .toHaveAttribute('aria-pressed', 'true');
         });
@@ -97,8 +97,8 @@ test.describe('Filtres par catégorie et par personne', () => {
     /**
      * @test Vérifie que le filtre par défaut "Tous" restaure la liste complète
      * @scenario Quand on clique "Sport" puis le bouton "Tous"
-     * @expected La liste complète est restaurée (24 cartes, compteur
-     *           "24 cadeaux"), le bouton "Tous" est actif et plusieurs
+     * @expected La liste complète est restaurée (30 cartes, compteur
+     *           "30 cadeaux"), le bouton "Tous" est actif et plusieurs
      *           catégories sont de nouveau présentes
      */
     test('le bouton "Tous" restaure tous les cadeaux', async ({ page }) => {
@@ -112,8 +112,8 @@ test.describe('Filtres par catégorie et par personne', () => {
         });
 
         await test.step('Vérifier la liste complète restaurée', async () => {
-            await expect(page.getByRole('article')).toHaveCount(24);
-            await expect(page.getByText('24 cadeaux', { exact: true })).toBeVisible();
+            await expect(page.getByRole('article')).toHaveCount(30);
+            await expect(page.getByText('30 cadeaux', { exact: true })).toBeVisible();
             await expect(page.getByRole('button', { name: 'Filtrer par Tous' }))
                 .toHaveAttribute('aria-pressed', 'true');
 

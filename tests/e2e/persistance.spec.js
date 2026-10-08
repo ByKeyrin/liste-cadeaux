@@ -191,7 +191,7 @@ test.describe('Persistance localStorage', () => {
          * @test Vérifie la persistance d'un ajout via le mode admin
          * @scenario Quand on ajoute un cadeau via la modale (nom, catégorie,
          *           prix, lien) puis qu'on recharge la page
-         * @expected Le cadeau apparaît immédiatement (compteur 25), la
+         * @expected Le cadeau apparaît immédiatement (compteur 31), la
          *           modale se ferme, et le cadeau est TOUJOURS présent
          *           après rechargement (schéma v2 "added")
          */
@@ -218,7 +218,7 @@ test.describe('Persistance localStorage', () => {
                     has: page.getByRole('heading', { name: 'Cadeau Test E2E', exact: true })
                 });
                 await expect(carte).toBeVisible();
-                await expect(page.getByText('25 cadeaux', { exact: true })).toBeVisible();
+                await expect(page.getByText('31 cadeaux', { exact: true })).toBeVisible();
             });
 
             await test.step('Recharger et vérifier la persistance', async () => {
@@ -228,7 +228,7 @@ test.describe('Persistance localStorage', () => {
                     has: page.getByRole('heading', { name: 'Cadeau Test E2E', exact: true })
                 });
                 await expect(carte).toBeVisible();
-                await expect(page.getByText('25 cadeaux', { exact: true })).toBeVisible();
+                await expect(page.getByText('31 cadeaux', { exact: true })).toBeVisible();
             });
         });
 
@@ -236,8 +236,8 @@ test.describe('Persistance localStorage', () => {
          * @test Vérifie la persistance d'une suppression via le mode admin
          * @scenario Quand on supprime le cadeau "Banc Plat" (confirmation
          *           native acceptée) puis qu'on recharge la page
-         * @expected Le cadeau disparaît immédiatement (23 cartes, compteur
-         *           "23 cadeaux") et reste supprimé après rechargement
+         * @expected Le cadeau disparaît immédiatement (29 cartes, compteur
+         *           "29 cadeaux") et reste supprimé après rechargement
          *           (schéma v2 "deleted" contient l'id 2)
          */
         test('persiste la suppression d\'un cadeau via le mode admin', async ({ page }) => {
@@ -258,8 +258,8 @@ test.describe('Persistance localStorage', () => {
             });
 
             await test.step('Vérifier la disparition immédiate', async () => {
-                await expect(page.getByRole('article')).toHaveCount(23);
-                await expect(page.getByText('23 cadeaux', { exact: true })).toBeVisible();
+                await expect(page.getByRole('article')).toHaveCount(29);
+                await expect(page.getByText('29 cadeaux', { exact: true })).toBeVisible();
                 await expect(page.getByRole('heading', { name: 'Banc Plat', exact: true }))
                     .toHaveCount(0);
             });
@@ -267,7 +267,7 @@ test.describe('Persistance localStorage', () => {
             await test.step('Recharger et vérifier la persistance de la suppression', async () => {
                 await page.reload();
 
-                await expect(page.getByRole('article')).toHaveCount(23);
+                await expect(page.getByRole('article')).toHaveCount(29);
                 await expect(page.getByRole('heading', { name: 'Banc Plat', exact: true }))
                     .toHaveCount(0);
 
