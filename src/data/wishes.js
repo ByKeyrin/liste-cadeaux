@@ -274,6 +274,24 @@ const wishesByPerson = {
             price: 5.50,
             url: "https://www.thomann.fr/fender_classic_celluloid_picks_shell_03.htm",
             requiredWishes: [25]
+        },
+        {
+            id: 29,
+            name: "Sangle Fender",
+            category: "Loisir",
+            image: "images/cadeaux/fender-strap.jpg",
+            price: 25,
+            url: "#",
+            requiredWishes: [25]
+        },
+        {
+            id: 30,
+            name: "Étui guitare",
+            category: "Loisir",
+            image: "images/cadeaux/guitar-case.jpg",
+            price: 60,
+            url: "#",
+            requiredWishes: [25]
         }
     ],
 
